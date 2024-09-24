@@ -1,0 +1,44 @@
+/**
+ * Universidad de La Laguna
+ * Escuela Superior de Ingeniería y Tecnología
+ * 3º Curso en Grado en Ingeniería Informática
+ * Inteligencia Artificial
+ * Práctica 1: Búsquedas no informadas
+ *
+ * @author Paula Díaz Jorge alu0101540863@ull.edu.es
+ * @date 24 sep 2024
+*/
+
+#include <vector>
+#include "tools/tools.h"
+#include "arbol/arbol.h"
+
+int main(int argc, char* argv[]) {
+  std::string nombre_fichero = "";
+  int error = CheckErrors(CheckParams(argc, argv, nombre_fichero));
+  if (error != 0) exit(EXIT_FAILURE);
+  int numero_vertices, numero_aristas = 0;
+  std::vector<std::vector<float>> distancias;
+  LeerFichero(nombre_fichero, numero_vertices, numero_aristas, distancias); 
+//   std::cout << numero_vertices << std::endl;
+//   for (int i = 0; i < distancias.size(); ++i) {
+//     for (int j = 0; j < distancias[i].size(); ++j) {
+//         std::cout << distancias[i][j] << std::endl;
+//     }
+//   } 
+  std::cout << "Introduzca el vértice de origen y de destino: " << std::endl;
+  int origen, destino;
+  std::cout << "Origen: ";
+  std::cin >> origen; // El vértice origen es el nodo raíz
+  std::cout << "Destino: ";
+  std::cin >> destino;
+  Nodo* nodo_raiz = new Nodo(origen);
+  Arbol arbol(nodo_raiz);
+
+  std::cout << "---------------------------------------------" << std::endl;
+  std::cout << "Número de nodos del grafo: " << numero_vertices << std::endl;
+  std::cout << "Número de aristas del grafo: " << numero_aristas << std::endl;
+  std::cout << "Vértice origen: " << origen << std::endl;
+  std::cout << "Vértice destino: " << destino << std::endl;
+  std::cout << "---------------------------------------------" << std::endl;
+}
