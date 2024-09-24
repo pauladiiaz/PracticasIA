@@ -52,7 +52,7 @@ void Help() {
   std::cout << "Si no hay una arista que conecte el vértice i con el vértice j, la distancia es -1" << std::endl;
 }
 
-void LeerFichero(const std::string& nombre_fichero, int& numero_vertices, std::vector<std::vector<float>>& distancias) {
+void LeerFichero(const std::string& nombre_fichero, int& numero_vertices, int& numero_aristas, std::vector<std::vector<float>>& distancias) {
   std::ifstream fichero(nombre_fichero);
   if (!fichero.is_open()) {
     throw std::runtime_error("Error al abrir el fichero.");
@@ -66,6 +66,7 @@ void LeerFichero(const std::string& nombre_fichero, int& numero_vertices, std::v
       if (getline(fichero, linea)) {
         distancias[i][j] = std::stof(linea);
         distancias[j][i] = std::stof(linea);
+        if (distancias[i][j] != -1) numero_aristas++;
       } else {
         throw std::runtime_error("Error al leer el fichero.");
       }
