@@ -33,9 +33,14 @@ int CheckParams(int argc, char* argv[], std::string& nombre_fichero) {
  * @return El código de error
 */
 int CheckErrors(const int& error) {
-  if (error == -1) {
-    std::cerr << "Error: Se ha introducido un número de parámetros no esperado" << std::endl;
-    Help();
+  switch (error) {
+    case -1: {
+      std::cerr << "Error: Se ha introducido un número de parámetros no esperado" << std::endl;
+      Help();
+    }
+    case -2: {
+      std::cerr << "Error al abrir el archivo de salida" << std::endl;
+    }
   }
   return error;
 }

@@ -1,0 +1,6 @@
+---------------------------------------------
+Número de nodos del grafo: 15
+Número de aristas del grafo: 19
+Vértice origen: 1
+Vértice destino: 4
+---------------------------------------------

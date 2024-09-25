@@ -32,10 +32,17 @@ int main(int argc, char* argv[]) {
   Nodo* nodo_raiz = new Nodo(origen);
   Arbol arbol(nodo_raiz, nombre_fichero);
 
-  std::cout << "---------------------------------------------" << std::endl;
-  std::cout << "Número de nodos del grafo: " << arbol.GetNumeroVertices() << std::endl;
-  std::cout << "Número de aristas del grafo: " << arbol.GetNumeroAristas() << std::endl;
-  std::cout << "Vértice origen: " << origen << std::endl;
-  std::cout << "Vértice destino: " << destino << std::endl;
-  std::cout << "---------------------------------------------" << std::endl;
+
+  std::ofstream fichero_salida("saves/salida.txt");
+  if (!fichero_salida) {
+    CheckErrors(-2);
+    exit(EXIT_FAILURE);
+  }
+  fichero_salida << "---------------------------------------------" << std::endl;
+  fichero_salida << "Número de nodos del grafo: " << arbol.GetNumeroVertices() << std::endl;
+  fichero_salida << "Número de aristas del grafo: " << arbol.GetNumeroAristas() << std::endl;
+  fichero_salida << "Vértice origen: " << origen << std::endl;
+  fichero_salida << "Vértice destino: " << destino << std::endl;
+  fichero_salida << "---------------------------------------------" << std::endl;
+  fichero_salida.close();
 }

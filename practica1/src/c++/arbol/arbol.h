@@ -19,6 +19,7 @@ class Arbol {
   Arbol(Nodo* raiz, const std::string& nombre_fichero);
 
   void BusquedaAmplitud();
+  void BusquedaProfundidad();
 
   Nodo* GetRaiz() const { return raiz_; }
   int GetNumeroVertices() const { return numero_vertices_; }
