@@ -15,9 +15,10 @@ class Nodo {
  public:
   Nodo() = default;
   Nodo(int numero_vertice) : numero_vertice_(numero_vertice) {}
+  Nodo(int numero_vertice, Nodo* padre);
   std::vector<Nodo*> GetSucesores() const { return sucesores_; }
   int GetNumero() const { return numero_vertice_; }
-  
+
  private:
   int numero_vertice_;
   std::vector<Nodo*> sucesores_;

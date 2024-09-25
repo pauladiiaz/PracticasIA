@@ -9,3 +9,7 @@
  * @date 24 sep 2024
 */
 #include "nodo.h"
+
+Nodo::Nodo(int numero_vertice, Nodo* padre) : numero_vertice_(numero_vertice), nodo_padre_(padre) {
+  
+}

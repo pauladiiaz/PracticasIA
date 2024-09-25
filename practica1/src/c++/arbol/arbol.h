@@ -30,4 +30,5 @@ class Arbol {
   Nodo* raiz_; // nodo origen
   int numero_vertices_, numero_aristas_;
   std::vector<std::vector<float>> distancias_;
+  std::vector<Nodo*> camino_;
 };

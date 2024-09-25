@@ -33,3 +33,6 @@ Arbol::Arbol(Nodo* raiz, const std::string& nombre_fichero) : raiz_(raiz) {
     }
   }
 }
+
+
+
