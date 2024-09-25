@@ -20,13 +20,11 @@ Arbol::Arbol(Nodo* raiz, const std::string& nombre_fichero) : raiz_(raiz) {
   std::string linea;
   getline(fichero, linea);
   numero_vertices_ = std::stoi(linea);
-  distancias_.resize(numero_vertices_, std::vector<float>(numero_vertices_, 0.0f));
-  for (int i = 0; i < numero_vertices_; ++i) {
-    for (int j = i + 1; j < numero_vertices_; ++j) { // Como las distancias son simétricas, se empieza un vértice por delante
+  for (int i = 1; i <= numero_vertices_; ++i) {
+    for (int j = i + 1; j <= numero_vertices_; ++j) { // Como las distancias son simétricas, se empieza un vértice por delante
       if (getline(fichero, linea)) {
-        distancias_[i][j] = std::stof(linea);
-        distancias_[j][i] = std::stof(linea);
-        if (distancias_[i][j] != -1) numero_aristas_++;
+        distancias_.insert(std::make_pair(std::make_pair(i, j), std::stof(linea))); // tener en cuenta la simetría
+        if (std::stof(linea) != -1) numero_aristas_++;
       } else {
         throw std::runtime_error("Error al leer el fichero.");
       }

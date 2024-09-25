@@ -11,6 +11,7 @@
 #pragma once
 #include <iostream>
 #include <fstream>
+#include <map>
 #include "../nodo/nodo.h"
 
 class Arbol {
@@ -24,10 +25,10 @@ class Arbol {
   Nodo* GetRaiz() const { return raiz_; }
   int GetNumeroVertices() const { return numero_vertices_; }
   int GetNumeroAristas() const { return numero_aristas_; }
-  const std::vector<std::vector<float>>& GetDistancias() const { return distancias_; }
+  const std::map<std::pair<int, int>, float>& GetDistancias() const { return distancias_; }
 
  private:
   Nodo* raiz_; // nodo origen
   int numero_vertices_, numero_aristas_;
-  std::vector<std::vector<float>> distancias_;
+  std::map<std::pair<int, int>, float> distancias_;
 };
