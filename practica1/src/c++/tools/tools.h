@@ -16,4 +16,3 @@
 int CheckParams(int argc, char* argv[], std::string&);
 int CheckErrors(const int&);
 void Help();
-void LeerFichero(const std::string&, int&, int&, std::vector<std::vector<float>>&);

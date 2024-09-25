@@ -51,25 +51,3 @@ void Help() {
   std::cout << "  Siguientes filas: se enumeran las distancias entre los pares de vértices" << std::endl;
   std::cout << "Si no hay una arista que conecte el vértice i con el vértice j, la distancia es -1" << std::endl;
 }
-
-void LeerFichero(const std::string& nombre_fichero, int& numero_vertices, int& numero_aristas, std::vector<std::vector<float>>& distancias) {
-  std::ifstream fichero(nombre_fichero);
-  if (!fichero.is_open()) {
-    throw std::runtime_error("Error al abrir el fichero.");
-  }
-  std::string linea;
-  getline(fichero, linea);
-  numero_vertices = std::stoi(linea);
-  distancias.resize(numero_vertices, std::vector<float>(numero_vertices, 0.0f));
-  for (int i = 0; i < numero_vertices; ++i) {
-    for (int j = i + 1; j < numero_vertices; ++j) { // Como las distancias son simétricas, se empieza un vértice por delante
-      if (getline(fichero, linea)) {
-        distancias[i][j] = std::stof(linea);
-        distancias[j][i] = std::stof(linea);
-        if (distancias[i][j] != -1) numero_aristas++;
-      } else {
-        throw std::runtime_error("Error al leer el fichero.");
-      }
-    }
-  }
-}
