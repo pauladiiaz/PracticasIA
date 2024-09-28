@@ -29,8 +29,8 @@ int main(int argc, char* argv[]) {
   std::cin >> origen; // El vértice origen es el nodo raíz
   std::cout << "Destino: ";
   std::cin >> destino;
-  Nodo* nodo_raiz = new Nodo(origen);
-  Arbol arbol(nodo_raiz, nombre_fichero);
+  Nodo* nodo_raiz = new Nodo(origen); // El nodo raiz es la arista origen
+  Arbol arbol(nodo_raiz, nombre_fichero, origen, destino);
 
 
   std::ofstream fichero_salida("saves/salida.txt");
@@ -44,5 +44,9 @@ int main(int argc, char* argv[]) {
   fichero_salida << "Vértice origen: " << origen << std::endl;
   fichero_salida << "Vértice destino: " << destino << std::endl;
   fichero_salida << "---------------------------------------------" << std::endl;
+
+  arbol.BusquedaAmplitud(fichero_salida);
+
+  std::cout << "La salida se ha guardado en saves/salida.txt" << std::endl;
   fichero_salida.close();
 }

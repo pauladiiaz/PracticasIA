@@ -12,23 +12,28 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <algorithm>
 #include "../nodo/nodo.h"
 
 class Arbol {
  public:
   Arbol() : raiz_(nullptr) {}
-  Arbol(Nodo* raiz, const std::string& nombre_fichero);
+  Arbol(Nodo* raiz, const std::string& nombre_fichero, const int&, const int&);
 
-  void BusquedaAmplitud();
+  void BusquedaAmplitud(std::ofstream&);
   void BusquedaProfundidad();
+
+  bool ComprobarRama(Nodo*);
 
   Nodo* GetRaiz() const { return raiz_; }
   int GetNumeroVertices() const { return numero_vertices_; }
   int GetNumeroAristas() const { return numero_aristas_; }
-  const std::map<std::pair<int, int>, float>& GetDistancias() const { return distancias_; }
+  const std::map<std::pair<int, int>, int>& GetDistancias() const { return distancias_; }
 
  private:
   Nodo* raiz_; // nodo origen
   int numero_vertices_, numero_aristas_;
-  std::map<std::pair<int, int>, float> distancias_;
+  std::map<std::pair<int, int>, int> distancias_;
+  std::vector<Nodo*> nodos_;
+  int origen_, destino_;
 };

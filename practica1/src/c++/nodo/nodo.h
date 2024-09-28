@@ -10,16 +10,20 @@
 */
 #pragma once
 #include <vector>
+#include <map>
 
 class Nodo {
  public:
   Nodo() = default;
   Nodo(int numero_vertice) : numero_vertice_(numero_vertice) {}
-  std::vector<Nodo*> GetSucesores() const { return sucesores_; }
+  const std::vector<std::pair<Nodo*, int>>& GetSucesores() const { return sucesores_; }
   int GetNumero() const { return numero_vertice_; }
+  void SetSucesores(const std::map<std::pair<int, int>, int>& distancias);
+  void NuevoSucesor(Nodo* nuevo_sucesor);
+  void SetNodoPadre(Nodo* padre);
   
  private:
   int numero_vertice_;
-  std::vector<Nodo*> sucesores_;
   Nodo* nodo_padre_;
+  std::vector<std::pair<Nodo*, int>> sucesores_;
 };
