@@ -10,16 +10,8 @@
 */
 #include "nodo.h"
 
-void Nodo::SetSucesores(const std::map<std::pair<int, int>, int>& distancias) {
-  bool terminado = false;
-  int it = numero_vertice_ + 1;
-  while (!terminado) {
-    sucesores_.emplace_back(new Nodo(it));
-  }
-}
-
-void Nodo::NuevoSucesor(Nodo* nuevo_sucesor) {
-  sucesores_.emplace_back(nuevo_sucesor);
+void Nodo::NuevoSucesor(Nodo* nuevo_sucesor, const int& coste) {
+  sucesores_.emplace_back(std::make_pair(nuevo_sucesor, coste));
 }
 
 void Nodo::SetNodoPadre(Nodo* padre) {

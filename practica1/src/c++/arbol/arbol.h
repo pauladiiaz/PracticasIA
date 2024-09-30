@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <queue>
 #include <algorithm>
 #include "../nodo/nodo.h"
 
@@ -23,7 +24,8 @@ class Arbol {
   void BusquedaAmplitud(std::ofstream&);
   void BusquedaProfundidad();
 
-  bool ComprobarRama(Nodo*);
+  void ImprimirSolucion(std::ofstream&, const std::vector<Nodo>&, const std::vector<Nodo>&, const int&);
+  void GenerarCamino(Nodo*, std::ofstream&, int&);
 
   Nodo* GetRaiz() const { return raiz_; }
   int GetNumeroVertices() const { return numero_vertices_; }

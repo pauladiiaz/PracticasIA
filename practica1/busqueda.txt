@@ -1,0 +1,47 @@
+void Arbol::BusquedaAmplitud(std::ofstream& fichero) {
+  int iteracion = 1;
+  std::vector<Nodo*> nodos_generados, nodos_inspeccionados;
+  std::queue<Nodo*> cola;
+
+  nodos_generados.push_back(raiz_);
+  cola.push(raiz_);
+  Nodo* nodo_actual = nullptr;
+  int costo = 0;
+  while (!cola.empty()) {
+    nodo_actual = cola.front();
+    cola.pop();
+    ImprimirSolucion(fichero, nodos_generados, nodos_inspeccionados, iteracion);
+    if (nodo_actual->GetNumero() == destino_) { // debería de parar luego de expandir todos los del mismo nivel
+      nodos_generados.emplace_back(nodo_actual);
+      nodos_inspeccionados.emplace_back(nodo_actual);
+      ImprimirSolucion(fichero, nodos_generados, nodos_inspeccionados, iteracion);
+      break; // Se ha encontrado el final
+    }
+    for (int i = 1; i <= numero_aristas_; ++i) {
+      auto ite = std::find(nodos_generados.begin(), nodos_generados.end(), nodo_actual);
+      if (i != nodo_actual->GetNumero() && ite == nodos_generados.end()) { // Que no se haya visitado ya
+        auto it1 = distancias_.find(std::make_pair(nodo_actual->GetNumero(), i));
+        auto it2 = distancias_.find(std::make_pair(i, nodo_actual->GetNumero()));
+        if (it1 != distancias_.end() || it2 != distancias_.end()) { // Comprobamos si es sucesor
+          // Comprobar si el nodo ya ha sido creado
+          Nodo* nodo_nuevo = new Nodo(i);
+          auto it = std::find(nodos_.begin(), nodos_.end(), nodo_nuevo);
+
+          if (it != nodos_.end()) { // El nodo ya existe
+            nodo_actual->NuevoSucesor(nodos_[std::distance(nodos_.begin(), it)]);
+            cola.push(nodos_[std::distance(nodos_.begin(), it)]);
+          } else { 
+            nodo_nuevo->SetNodoPadre(nodo_actual);
+            nodo_actual->NuevoSucesor(nodo_nuevo);
+            nodos_.emplace_back(nodo_nuevo);
+            nodos_generados.emplace_back(nodo_nuevo);
+            cola.push(nodo_actual);
+          }
+        }  
+      }
+    }
+    iteracion++;
+  }
+  if (nodo_actual->GetNumero() != destino_) { fichero << "No se encontró el nodo destino" << std::endl; }
+  
+}
