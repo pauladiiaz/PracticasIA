@@ -14,6 +14,7 @@
 #include <map>
 #include <queue>
 #include <algorithm>
+#include <stack>
 #include "../nodo/nodo.h"
 
 class Arbol {
@@ -22,7 +23,7 @@ class Arbol {
   Arbol(Nodo* raiz, const std::string& nombre_fichero, const int&, const int&);
 
   void BusquedaAmplitud(std::ofstream&);
-  void BusquedaProfundidad();
+  void BusquedaProfundidad(std::ofstream&);
 
   void ImprimirSolucion(std::ofstream&, const std::vector<Nodo*>&, const std::vector<Nodo*>&, const int&);
   bool RevisarRama(Nodo*, Nodo*);

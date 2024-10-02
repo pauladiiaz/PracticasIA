@@ -24,6 +24,13 @@ int main(int argc, char* argv[]) {
   std::cin >> origen; // El vértice origen es el nodo raíz
   std::cout << "Destino: ";
   std::cin >> destino;
+  std::cout << "Introduzca si desea una búsqueda en profundidad (p) o en anchura (a) ";
+  char opcion;
+  std::cin >> opcion;
+  if (opcion != 'p' && opcion != 'a') {
+    CheckErrors(-3);
+    exit(EXIT_FAILURE);
+  }
   Nodo* nodo_raiz = new Nodo(origen); // El nodo raiz es la arista origen
   Arbol arbol(nodo_raiz, nombre_fichero, origen, destino);
   // std::cout << "Distancias: " << std::endl;
@@ -43,8 +50,12 @@ int main(int argc, char* argv[]) {
   fichero_salida << "Vértice destino: " << destino << std::endl;
   fichero_salida << "---------------------------------------------" << std::endl;
 
-  arbol.BusquedaAmplitud(fichero_salida);
-
+  if (opcion == 'a') {
+    arbol.BusquedaAmplitud(fichero_salida);
+  } else {
+    arbol.BusquedaProfundidad(fichero_salida);
+  }
+  
   std::cout << "La salida se ha guardado en saves/salida.txt" << std::endl;
   fichero_salida.close();
 }

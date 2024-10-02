@@ -107,10 +107,71 @@ void Arbol::BusquedaAmplitud(std::ofstream& fichero) {
 }
 
 
-// void Arbol::BusquedaProfundidad(std::ofstream& fichero) {
-//   int iteracion = 1, costo = 0;
+void Arbol::BusquedaProfundidad(std::ofstream& fichero) {
+  int iteracion = 1, costo = 0;
+  std::stack<Nodo*> pila;
+  std::vector<Nodo*> inspeccionados, generados;
+  Nodo* nodo_actual = nullptr;
+  pila.push(raiz_);
+  generados.emplace_back(raiz_);
 
-// }
+  while (true) {
+    ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
+
+    nodo_actual = pila.top();
+    pila.pop();
+
+    if (nodo_actual->GetNumero() == destino_) {
+      inspeccionados.emplace_back(nodo_actual);
+      iteracion++;
+      ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
+      break; 
+    } else {
+  // Generamos sus sucesores
+      auto it = std::find(inspeccionados.begin(), inspeccionados.end(), nodo_actual);
+      if (it == inspeccionados.end()) inspeccionados.emplace_back(nodo_actual);
+      for (int i = 1; i <= numero_vertices_; ++i) { // Buscamos sus sucesores 
+        if (i != nodo_actual->GetNumero()) { // Evitamos que se busque a sí mismo como sucesor
+          auto ite1 = distancias_.find(std::make_pair(i, nodo_actual->GetNumero()));
+                    
+          // Si i es un sucesor
+          if (ite1 != distancias_.end()) {
+            bool generado = false;
+            // Comprobamos si el nuevo nodo ya ha sido creado
+            int k;
+            for (k = 0; k < generados.size(); ++k) {
+              if (generados[k]->GetNumero() == i) {
+                generado = true;
+                break;
+              }
+            }
+            if (!generado) { // Si no ha sido generado, lo añadimos
+              Nodo* nuevo_nodo = new Nodo(i);
+              generados.emplace_back(nuevo_nodo);
+              pila.push(nuevo_nodo);
+              nuevo_nodo->SetNodoPadre(nodo_actual);                
+            } else {
+              Nodo* nodo_sucesor = generados[k];
+              if (RevisarRama(nodo_sucesor, nodo_actual)) {
+                pila.push(nodo_sucesor);
+              }
+            }
+          }
+        }
+      }
+      iteracion++;      
+    }
+  }
+  std::vector<Nodo*> camino;
+  // Hacer funcion que recorra los nodos padre
+  fichero << "Camino: ";
+  GenerarCamino(nodo_actual, fichero, camino);
+  fichero << std::endl;
+
+  GenerarCoste(camino, costo);
+  fichero << "Costo: " << costo << std::endl;
+
+}
 
 void Arbol::ImprimirSolucion(std::ofstream& fichero, const std::vector<Nodo*>& nodos_generados, 
             const std::vector<Nodo*>& nodos_inspeccionados, const int& iteracion) {
