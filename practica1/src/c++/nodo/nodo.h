@@ -14,8 +14,8 @@
 
 class Nodo {
  public:
-  Nodo() = default;
-  Nodo(int numero_vertice) : numero_vertice_(numero_vertice) {}
+  Nodo() : nodo_padre_(nullptr) {}
+  Nodo(int numero_vertice) : numero_vertice_(numero_vertice), nodo_padre_(nullptr) {}
   const std::vector<std::pair<Nodo*, int>>& GetSucesores() const { return sucesores_; }
   int GetNumero() const { return numero_vertice_; }
   Nodo* GetPadre() const { return nodo_padre_; }

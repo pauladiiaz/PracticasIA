@@ -11,9 +11,11 @@
 #include "nodo.h"
 
 void Nodo::NuevoSucesor(Nodo* nuevo_sucesor, const int& coste) {
-  sucesores_.emplace_back(std::make_pair(nuevo_sucesor, coste));
+  std::pair<Nodo*, int> sucesor;
+  auto it = std::find(sucesores_.begin(), sucesores_.end(), sucesor);
+  if (it == sucesores_.end()) sucesores_.emplace_back(sucesor);
 }
 
 void Nodo::SetNodoPadre(Nodo* padre) {
-  nodo_padre_ = padre;
+  if (nodo_padre_ == nullptr) nodo_padre_ = padre;
 }

@@ -17,12 +17,7 @@ int main(int argc, char* argv[]) {
   std::string nombre_fichero = "";
   int error = CheckErrors(CheckParams(argc, argv, nombre_fichero));
   if (error != 0) exit(EXIT_FAILURE);
-//   std::cout << numero_vertices << std::endl;
-//   for (int i = 0; i < distancias.size(); ++i) {
-//     for (int j = 0; j < distancias[i].size(); ++j) {
-//         std::cout << distancias[i][j] << std::endl;
-//     }
-//   } 
+
   std::cout << "Introduzca el vértice de origen y de destino: " << std::endl;
   int origen, destino;
   std::cout << "Origen: ";
@@ -31,7 +26,10 @@ int main(int argc, char* argv[]) {
   std::cin >> destino;
   Nodo* nodo_raiz = new Nodo(origen); // El nodo raiz es la arista origen
   Arbol arbol(nodo_raiz, nombre_fichero, origen, destino);
-
+  // std::cout << "Distancias: " << std::endl;
+  // for (const auto& par : arbol.GetDistancias()) {
+  //   std::cout << "(" << par.first.first << ", " << par.first.second << ") Coste: " << par.second << std::endl;
+  // }
 
   std::ofstream fichero_salida("saves/salida.txt");
   if (!fichero_salida) {

@@ -24,8 +24,10 @@ class Arbol {
   void BusquedaAmplitud(std::ofstream&);
   void BusquedaProfundidad();
 
-  void ImprimirSolucion(std::ofstream&, const std::vector<Nodo>&, const std::vector<Nodo>&, const int&);
-  void GenerarCamino(Nodo*, std::ofstream&, int&);
+  void ImprimirSolucion(std::ofstream&, const std::vector<Nodo*>&, const std::vector<Nodo*>&, const int&);
+  bool RevisarRama(Nodo*, Nodo*);
+  void GenerarCoste(const std::vector<Nodo*>&, int&);
+  void GenerarCamino(Nodo*, std::ofstream&, std::vector<Nodo*>&);
 
   Nodo* GetRaiz() const { return raiz_; }
   int GetNumeroVertices() const { return numero_vertices_; }
@@ -36,6 +38,5 @@ class Arbol {
   Nodo* raiz_; // nodo origen
   int numero_vertices_, numero_aristas_;
   std::map<std::pair<int, int>, int> distancias_;
-  std::vector<Nodo*> nodos_;
   int origen_, destino_;
 };
