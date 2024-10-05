@@ -17,10 +17,10 @@
 #include <stack>
 #include "../nodo/nodo.h"
 
-class Arbol {
+class Grafo {
  public:
-  Arbol() : raiz_(nullptr) {}
-  Arbol(Nodo* raiz, const std::string& nombre_fichero, const int&, const int&);
+  Grafo() : raiz_(nullptr) {}
+  Grafo(Nodo* raiz, const std::string& nombre_fichero, const int&, const int&);
 
   void BusquedaAmplitud(std::ofstream&);
   void BusquedaProfundidad(std::ofstream&);

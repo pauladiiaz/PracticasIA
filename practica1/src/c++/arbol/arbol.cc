@@ -12,7 +12,7 @@
 #include "arbol.h"
 
 
-Arbol::Arbol(Nodo* raiz, const std::string& nombre_fichero, const int& origen, const int& destino) : raiz_(raiz), origen_(origen), 
+Grafo::Grafo(Nodo* raiz, const std::string& nombre_fichero, const int& origen, const int& destino) : raiz_(raiz), origen_(origen), 
         destino_(destino) {
   // Leer los datos desde el fichero
   std::ifstream fichero(nombre_fichero);
@@ -22,6 +22,7 @@ Arbol::Arbol(Nodo* raiz, const std::string& nombre_fichero, const int& origen, c
   std::string linea;
   getline(fichero, linea);
   numero_vertices_ = std::stoi(linea);
+  numero_aristas_ = 0;
   for (int i = 1; i <= numero_vertices_; ++i) {
     for (int j = i + 1; j <= numero_vertices_; ++j) { // Como las distancias son simétricas, se empieza un vértice por delante
       if (getline(fichero, linea)) {
@@ -38,63 +39,58 @@ Arbol::Arbol(Nodo* raiz, const std::string& nombre_fichero, const int& origen, c
   
 }
 
-void Arbol::BusquedaAmplitud(std::ofstream& fichero) {
+void Grafo::BusquedaAmplitud(std::ofstream& fichero) {
   int iteracion = 1, costo = 0;
   std::queue<Nodo*> cola;
   std::vector<Nodo*> inspeccionados, generados;
-  Nodo* nodo_actual = nullptr;
+  std::unordered_set<int> nodos_generados;
+  nodos_generados.insert(raiz_->GetNumero());
 
+  Nodo* nodo_actual = nullptr;
   cola.push(raiz_);
-  // Añadimos el nodo raíz al conjunto
   generados.emplace_back(raiz_);
 
   while (true) {
     ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
-        
+
     nodo_actual = cola.front();
     cola.pop();
 
-    if (nodo_actual->GetNumero() == destino_) {
-      inspeccionados.emplace_back(nodo_actual);
-      iteracion++;
-      ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
-      break;      
-    } else {
-      // Generamos sus sucesores
-      auto it = std::find(inspeccionados.begin(), inspeccionados.end(), nodo_actual);
-      if (it == inspeccionados.end()) inspeccionados.emplace_back(nodo_actual);
-      for (int i = 1; i <= numero_vertices_; ++i) { // Buscamos sus sucesores 
-        if (i != nodo_actual->GetNumero()) { // Evitamos que se busque a sí mismo como sucesor
-          auto ite1 = distancias_.find(std::make_pair(i, nodo_actual->GetNumero()));
-                    
-          // Si i es un sucesor
-          if (ite1 != distancias_.end()) {
-            bool generado = false;
-            // Comprobamos si el nuevo nodo ya ha sido creado
+    for (int i = 1; i <= numero_vertices_; ++i) {
+      if (i != nodo_actual->GetNumero()) {
+        auto it = distancias_.find(std::make_pair(i, nodo_actual->GetNumero()));
+
+        if (it != distancias_.end()) {
+          if (nodos_generados.find(i) == nodos_generados.end()) {
+            Nodo* nuevo_nodo = new Nodo(i);
+            generados.emplace_back(nuevo_nodo);
+            cola.push(nuevo_nodo);
+            nuevo_nodo->SetNodoPadre(nodo_actual);
+            nodos_generados.insert(i);
+          } else {
             int k;
             for (k = 0; k < generados.size(); ++k) {
-              if (generados[k]->GetNumero() == i) {
-                generado = true;
-                break;
-              }
+              if (generados[k]->GetNumero() == i) break;
             }
-            if (!generado) { // Si no ha sido generado, lo añadimos
-              Nodo* nuevo_nodo = new Nodo(i);
-              generados.emplace_back(nuevo_nodo);
-              cola.push(nuevo_nodo);
-              nuevo_nodo->SetNodoPadre(nodo_actual);                
-            } else {
-              Nodo* nodo_sucesor = generados[k];
-              if (RevisarRama(nodo_sucesor, nodo_actual)) {
-                cola.push(nodo_sucesor);
-              }
-            }
+            Nodo* nodo_sucesor = generados[k];
+            auto it2 = std::find(inspeccionados.begin(), inspeccionados.end(), nodo_sucesor);
+            // if (RevisarRama(nodo_sucesor, nodo_actual) && it2 == inspeccionados.end()) {
+            if (RevisarRama(nodo_sucesor, nodo_actual) && it2 == inspeccionados.end()) {
+              // generados.emplace_back(nodo_sucesor); // para que se muestre en la iteración
+              cola.push(nodo_sucesor);
+            }          
           }
         }
       }
-      iteracion++;
     }
+    inspeccionados.emplace_back(nodo_actual);
+    if (nodo_actual->GetNumero() == destino_) {
+      ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
+      break;
+    }
+    iteracion++;
   }
+  // Generamos sus sucesores
   std::vector<Nodo*> camino;
   // Hacer funcion que recorra los nodos padre
   fichero << "Camino: ";
@@ -103,14 +99,15 @@ void Arbol::BusquedaAmplitud(std::ofstream& fichero) {
 
   GenerarCoste(camino, costo);
   fichero << "Costo: " << costo << std::endl;
-
 }
 
-
-void Arbol::BusquedaProfundidad(std::ofstream& fichero) {
+void Grafo::BusquedaProfundidad(std::ofstream& fichero) {
   int iteracion = 1, costo = 0;
   std::stack<Nodo*> pila;
   std::vector<Nodo*> inspeccionados, generados;
+  std::unordered_set<int> nodos_generados;
+  nodos_generados.insert(raiz_->GetNumero());
+
   Nodo* nodo_actual = nullptr;
   pila.push(raiz_);
   generados.emplace_back(raiz_);
@@ -121,47 +118,40 @@ void Arbol::BusquedaProfundidad(std::ofstream& fichero) {
     nodo_actual = pila.top();
     pila.pop();
 
-    if (nodo_actual->GetNumero() == destino_) {
-      inspeccionados.emplace_back(nodo_actual);
-      iteracion++;
-      ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
-      break; 
-    } else {
-  // Generamos sus sucesores
-      auto it = std::find(inspeccionados.begin(), inspeccionados.end(), nodo_actual);
-      if (it == inspeccionados.end()) inspeccionados.emplace_back(nodo_actual);
-      for (int i = 1; i <= numero_vertices_; ++i) { // Buscamos sus sucesores 
-        if (i != nodo_actual->GetNumero()) { // Evitamos que se busque a sí mismo como sucesor
-          auto ite1 = distancias_.find(std::make_pair(i, nodo_actual->GetNumero()));
-                    
-          // Si i es un sucesor
-          if (ite1 != distancias_.end()) {
-            bool generado = false;
-            // Comprobamos si el nuevo nodo ya ha sido creado
+    for (int i = 1; i <= numero_vertices_; ++i) {
+      if (i != nodo_actual->GetNumero()) {
+        auto it = distancias_.find(std::make_pair(i, nodo_actual->GetNumero()));
+
+        if (it != distancias_.end()) {
+          if (nodos_generados.find(i) == nodos_generados.end()) {
+            Nodo* nuevo_nodo = new Nodo(i);
+            generados.emplace_back(nuevo_nodo);
+            pila.push(nuevo_nodo);
+            nuevo_nodo->SetNodoPadre(nodo_actual);
+            nodos_generados.insert(i);
+          } else {
             int k;
             for (k = 0; k < generados.size(); ++k) {
-              if (generados[k]->GetNumero() == i) {
-                generado = true;
-                break;
-              }
+              if (generados[k]->GetNumero() == i) break;
             }
-            if (!generado) { // Si no ha sido generado, lo añadimos
-              Nodo* nuevo_nodo = new Nodo(i);
-              generados.emplace_back(nuevo_nodo);
-              pila.push(nuevo_nodo);
-              nuevo_nodo->SetNodoPadre(nodo_actual);                
-            } else {
-              Nodo* nodo_sucesor = generados[k];
-              if (RevisarRama(nodo_sucesor, nodo_actual)) {
-                pila.push(nodo_sucesor);
-              }
-            }
+            Nodo* nodo_sucesor = generados[k];
+            auto it2 = std::find(inspeccionados.begin(), inspeccionados.end(), nodo_sucesor);
+            if (RevisarRama(nodo_sucesor, nodo_actual) && it2 == inspeccionados.end()) {
+              // generados.emplace_back(nodo_sucesor); // para que se muestre en la iteración
+              pila.push(nodo_sucesor);
+            }          
           }
         }
       }
-      iteracion++;      
     }
+    inspeccionados.emplace_back(nodo_actual);
+    if (nodo_actual->GetNumero() == destino_) {
+      ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
+      break;
+    }
+    iteracion++;
   }
+  // Generamos sus sucesores
   std::vector<Nodo*> camino;
   // Hacer funcion que recorra los nodos padre
   fichero << "Camino: ";
@@ -170,10 +160,9 @@ void Arbol::BusquedaProfundidad(std::ofstream& fichero) {
 
   GenerarCoste(camino, costo);
   fichero << "Costo: " << costo << std::endl;
-
 }
 
-void Arbol::ImprimirSolucion(std::ofstream& fichero, const std::vector<Nodo*>& nodos_generados, 
+void Grafo::ImprimirSolucion(std::ofstream& fichero, const std::vector<Nodo*>& nodos_generados, 
             const std::vector<Nodo*>& nodos_inspeccionados, const int& iteracion) {
   fichero << "Iteración " << iteracion << std::endl;
   fichero << "Nodos generados: ";
@@ -197,7 +186,7 @@ void Arbol::ImprimirSolucion(std::ofstream& fichero, const std::vector<Nodo*>& n
   fichero << std::endl << "---------------------------------------------" << std::endl;
 }
 
-bool Arbol::RevisarRama(Nodo* nodo_insertar, Nodo* nodo_actual) {
+bool Grafo::RevisarRama(Nodo* nodo_insertar, Nodo* nodo_actual) {
   Nodo* nodo_padre = nodo_actual->GetPadre();
   while (nodo_padre != nullptr) {
     if (nodo_padre == nodo_insertar) return false;  
@@ -206,7 +195,7 @@ bool Arbol::RevisarRama(Nodo* nodo_insertar, Nodo* nodo_actual) {
   return true; // Se llegó hasta la raíz sin encontrar un nodo igual
 }
 
-void Arbol::GenerarCoste(const std::vector<Nodo*>& camino, int& costo) {
+void Grafo::GenerarCoste(const std::vector<Nodo*>& camino, int& costo) {
   costo = 0;
   for (int i = 0; i < camino.size(); i++) {
     int j = i + 1;
@@ -216,7 +205,7 @@ void Arbol::GenerarCoste(const std::vector<Nodo*>& camino, int& costo) {
   }
 }
 
-void Arbol::GenerarCamino(Nodo* nodo_actual, std::ofstream& fichero, std::vector<Nodo*>& camino) {
+void Grafo::GenerarCamino(Nodo* nodo_actual, std::ofstream& fichero, std::vector<Nodo*>& camino) {
   Nodo* nodo_padre = nodo_actual->GetPadre();
   camino.emplace_back(nodo_actual);
   while (nodo_padre != nullptr) {

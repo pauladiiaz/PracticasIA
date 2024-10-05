@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
   Nodo* nodo_raiz = new Nodo(origen); // El nodo raiz es la arista origen
-  Arbol arbol(nodo_raiz, nombre_fichero, origen, destino);
+  Grafo grafo(nodo_raiz, nombre_fichero, origen, destino);
   // std::cout << "Distancias: " << std::endl;
   // for (const auto& par : arbol.GetDistancias()) {
   //   std::cout << "(" << par.first.first << ", " << par.first.second << ") Coste: " << par.second << std::endl;
@@ -44,16 +44,16 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
   fichero_salida << "---------------------------------------------" << std::endl;
-  fichero_salida << "Número de nodos del grafo: " << arbol.GetNumeroVertices() << std::endl;
-  fichero_salida << "Número de aristas del grafo: " << arbol.GetNumeroAristas() << std::endl;
+  fichero_salida << "Número de nodos del grafo: " << grafo.GetNumeroVertices() << std::endl;
+  fichero_salida << "Número de aristas del grafo: " << grafo.GetNumeroAristas() << std::endl;
   fichero_salida << "Vértice origen: " << origen << std::endl;
   fichero_salida << "Vértice destino: " << destino << std::endl;
   fichero_salida << "---------------------------------------------" << std::endl;
 
   if (opcion == 'a') {
-    arbol.BusquedaAmplitud(fichero_salida);
+    grafo.BusquedaAmplitud(fichero_salida);
   } else {
-    arbol.BusquedaProfundidad(fichero_salida);
+    grafo.BusquedaProfundidad(fichero_salida);
   }
   
   std::cout << "La salida se ha guardado en saves/salida.txt" << std::endl;
