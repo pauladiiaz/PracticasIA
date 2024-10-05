@@ -41,6 +41,9 @@ int CheckErrors(const int& error) {
     case -2: {
       std::cerr << "Error al abrir el archivo de salida" << std::endl;
     }
+    case -3: {
+      std::cerr << "Error: No se ha introducido correctamente el tipo de búsqueda" << std::endl;
+    }
   }
   return error;
 }
