@@ -45,6 +45,76 @@ Grafo::Grafo(Nodo* raiz, const std::string& nombre_fichero, const int& origen, c
   
 }
 
+void Grafo::BusquedaAmplitudModificada(std::ofstream& fichero) {
+  int iteracion = 1, costo = 0;
+  std::queue<Nodo*> cola;
+  std::vector<Nodo*> inspeccionados, generados;
+
+  Nodo* nodo_actual = nullptr;
+  generados.emplace_back(raiz_);
+  ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
+  iteracion++;
+  std::vector<Nodo*> sucesores;
+  for (int i = 1; i <= numero_vertices_; ++i) {
+    if (i != raiz_->GetNumero()) {
+      auto it = distancias_.find(std::make_pair(i, raiz_->GetNumero()));
+      if (it != distancias_.end()) {
+        Nodo* nuevo_sucesor = new Nodo(i);
+        generados.emplace_back(nuevo_sucesor);
+        nuevo_sucesor->SetNodoPadre(raiz_);
+        sucesores.emplace_back(nuevo_sucesor);
+      }
+    }
+  }
+  inspeccionados.emplace_back(raiz_);
+  srand(time(0));
+  int j;
+  for (j = 1; j <= 10; ++j) {
+    cola.push(sucesores[rand() % sucesores.size()]);
+    bool camino_encontrado = false;
+    while (!cola.empty()) {
+      nodo_actual = cola.front();
+      cola.pop();
+
+      ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
+      if (nodo_actual->GetNumero() == destino_) {
+        camino_encontrado = true;
+        iteracion++;
+        inspeccionados.emplace_back(nodo_actual);
+        ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
+        break;
+      }
+      for (int i = 1; i <= numero_vertices_; ++i) {
+        if (i != nodo_actual->GetNumero()) {
+          auto it = distancias_.find(std::make_pair(i, nodo_actual->GetNumero()));
+          if (it != distancias_.end()) {
+            Nodo* nuevo_nodo = new Nodo(i);
+            if (RevisarRama(nuevo_nodo, nodo_actual)) {
+              generados.emplace_back(nuevo_nodo);
+              nuevo_nodo->SetNodoPadre(nodo_actual);
+              cola.push(nuevo_nodo);
+            }          
+          }
+        }
+      }
+      inspeccionados.emplace_back(nodo_actual);
+      iteracion++;      
+    }
+    if (camino_encontrado == true) break;
+  }
+  if (j > 10) {
+    fichero << "No se ha encontrado un camino" << std::endl;
+  } else {
+    std::vector<Nodo*> camino;
+    fichero << "Camino: ";
+    GenerarCamino(nodo_actual, fichero, camino);
+    fichero << std::endl;
+
+    GenerarCoste(camino, costo);
+    fichero << "Costo: " << costo << std::endl; 
+  }
+}
+
 /**
  * @brief Método que implementa la búsqueda en amplitud e imprime el camino del nodo origen al destino y el costo total
  * @param fichero Fichero de salida en el que se imprimirá la solución
@@ -93,6 +163,8 @@ void Grafo::BusquedaAmplitud(std::ofstream& fichero) {
   GenerarCoste(camino, costo);
   fichero << "Costo: " << costo << std::endl;
 }
+
+
 
 /**
  * @brief Método que implementa la búsqueda en profundidad e imprime el camino del nodo origen al destino y el costo total

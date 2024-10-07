@@ -1,64 +1,48 @@
 ---------------------------------------------
-Número de nodos del grafo: 20
-Número de aristas del grafo: 25
-Vértice origen: 1
-Vértice destino: 8
+Número de nodos del grafo: 15
+Número de aristas del grafo: 19
+Vértice origen: 3
+Vértice destino: 9
 ---------------------------------------------
 Iteración 1
-Nodos generados: 1
+Nodos generados: 3
 Nodos inspeccionados: -
 ---------------------------------------------
 Iteración 2
-Nodos generados: 1, 2, 5
-Nodos inspeccionados: 1
+Nodos generados: 3, 1, 2, 4, 11
+Nodos inspeccionados: 3
 ---------------------------------------------
 Iteración 3
-Nodos generados: 1, 2, 5, 3, 4, 20
-Nodos inspeccionados: 1, 2
+Nodos generados: 3, 1, 2, 4, 11, 1, 4
+Nodos inspeccionados: 3, 2
 ---------------------------------------------
 Iteración 4
-Nodos generados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11
-Nodos inspeccionados: 1, 2, 5
+Nodos generados: 3, 1, 2, 4, 11, 1, 4
+Nodos inspeccionados: 3, 2, 1
 ---------------------------------------------
 Iteración 5
-Nodos generados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5, 6
-Nodos inspeccionados: 1, 2, 5, 3
+Nodos generados: 3, 1, 2, 4, 11, 1, 4, 6, 12
+Nodos inspeccionados: 3, 2, 1, 4
 ---------------------------------------------
 Iteración 6
-Nodos generados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5, 6, 8, 17, 18
-Nodos inspeccionados: 1, 2, 5, 3, 4
+Nodos generados: 3, 1, 2, 4, 11, 1, 4, 6, 12, 5, 7, 9, 10
+Nodos inspeccionados: 3, 2, 1, 4, 6
 ---------------------------------------------
 Iteración 7
-Nodos generados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5, 6, 8, 17, 18, 19
-Nodos inspeccionados: 1, 2, 5, 3, 4, 20
+Nodos generados: 3, 1, 2, 4, 11, 1, 4, 6, 12, 5, 7, 9, 10, 5
+Nodos inspeccionados: 3, 2, 1, 4, 6, 12
 ---------------------------------------------
 Iteración 8
-Nodos generados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5, 6, 8, 17, 18, 19, 2, 6
-Nodos inspeccionados: 1, 2, 5, 3, 4, 20, 3
+Nodos generados: 3, 1, 2, 4, 11, 1, 4, 6, 12, 5, 7, 9, 10, 5, 12, 13
+Nodos inspeccionados: 3, 2, 1, 4, 6, 12, 5
 ---------------------------------------------
 Iteración 9
-Nodos generados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5, 6, 8, 17, 18, 19, 2, 6, 3, 9
-Nodos inspeccionados: 1, 2, 5, 3, 4, 20, 3, 6
+Nodos generados: 3, 1, 2, 4, 11, 1, 4, 6, 12, 5, 7, 9, 10, 5, 12, 13, 8, 15
+Nodos inspeccionados: 3, 2, 1, 4, 6, 12, 5, 7
 ---------------------------------------------
 Iteración 10
-Nodos generados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5, 6, 8, 17, 18, 19, 2, 6, 3, 9, 12
-Nodos inspeccionados: 1, 2, 5, 3, 4, 20, 3, 6, 10
+Nodos generados: 3, 1, 2, 4, 11, 1, 4, 6, 12, 5, 7, 9, 10, 5, 12, 13, 8, 15
+Nodos inspeccionados: 3, 2, 1, 4, 6, 12, 5, 7, 9
 ---------------------------------------------
-Iteración 11
-Nodos generados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5, 6, 8, 17, 18, 19, 2, 6, 3, 9, 12
-Nodos inspeccionados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11
----------------------------------------------
-Iteración 12
-Nodos generados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5, 6, 8, 17, 18, 19, 2, 6, 3, 9, 12, 6, 10, 11
-Nodos inspeccionados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5
----------------------------------------------
-Iteración 13
-Nodos generados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5, 6, 8, 17, 18, 19, 2, 6, 3, 9, 12, 6, 10, 11, 5, 9
-Nodos inspeccionados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5, 6
----------------------------------------------
-Iteración 14
-Nodos generados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5, 6, 8, 17, 18, 19, 2, 6, 3, 9, 12, 6, 10, 11, 5, 9
-Nodos inspeccionados: 1, 2, 5, 3, 4, 20, 3, 6, 10, 11, 5, 6, 8
----------------------------------------------
-Camino: 1, 2, 4, 8
-Costo: 27
+Camino: 3, 2, 4, 6, 9
+Costo: 21

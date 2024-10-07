@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
   fichero_salida << "---------------------------------------------" << std::endl;
 
   if (opcion == 'a') {
-    grafo.BusquedaAmplitud(fichero_salida);
+    grafo.BusquedaAmplitudModificada(fichero_salida);
   } else {
     grafo.BusquedaProfundidad(fichero_salida);
   }
