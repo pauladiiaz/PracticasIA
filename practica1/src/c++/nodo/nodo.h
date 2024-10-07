@@ -20,10 +20,9 @@ class Nodo {
   const std::vector<std::pair<Nodo*, int>>& GetSucesores() const { return sucesores_; }
   int GetNumero() const { return numero_vertice_; }
   Nodo* GetPadre() const { return nodo_padre_; }
-  void NuevoSucesor(Nodo* nuevo_sucesor, const int& coste);
+
   void SetNodoPadre(Nodo* padre);
   bool operator<(const Nodo& otro) const { return this->GetNumero() < otro.GetNumero(); }
-
   bool operator==(const Nodo& other) const { return numero_vertice_ == other.numero_vertice_; }
   
  private:

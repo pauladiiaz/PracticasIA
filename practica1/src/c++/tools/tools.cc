@@ -37,12 +37,23 @@ int CheckErrors(const int& error) {
     case -1: {
       std::cerr << "Error: Se ha introducido un número de parámetros no esperado" << std::endl;
       Help();
+      break;
     }
     case -2: {
       std::cerr << "Error al abrir el archivo de salida" << std::endl;
+      break;
     }
     case -3: {
       std::cerr << "Error: No se ha introducido correctamente el tipo de búsqueda" << std::endl;
+      break;
+    }
+    case -4: {
+      std::cerr << "Error: El nodo origen no existte" << std::endl;
+      break;
+    }
+    case -5: {
+      std::cerr << "Error: El nodo destino no existe" << std::endl;
+      break;
     }
   }
   return error;

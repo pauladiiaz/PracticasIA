@@ -10,12 +10,10 @@
 */
 #include "nodo.h"
 
-void Nodo::NuevoSucesor(Nodo* nuevo_sucesor, const int& coste) {
-  std::pair<Nodo*, int> sucesor;
-  auto it = std::find(sucesores_.begin(), sucesores_.end(), sucesor);
-  if (it == sucesores_.end()) sucesores_.emplace_back(sucesor);
-}
-
+/**
+ * @brief Método para asignarle un nodo padre al nodo
+ * @param padre Nodo que será el nodo padre del actual
+ */
 void Nodo::SetNodoPadre(Nodo* padre) {
   if (nodo_padre_ == nullptr) nodo_padre_ = padre;
 }

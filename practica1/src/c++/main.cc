@@ -33,10 +33,14 @@ int main(int argc, char* argv[]) {
   }
   Nodo* nodo_raiz = new Nodo(origen); // El nodo raiz es la arista origen
   Grafo grafo(nodo_raiz, nombre_fichero, origen, destino);
-  // std::cout << "Distancias: " << std::endl;
-  // for (const auto& par : arbol.GetDistancias()) {
-  //   std::cout << "(" << par.first.first << ", " << par.first.second << ") Coste: " << par.second << std::endl;
-  // }
+  if ((origen < 1 || origen > grafo.GetNumeroVertices())) {
+    CheckErrors(-4);
+    exit(EXIT_FAILURE);
+  }
+  if (destino < 1 || destino > grafo.GetNumeroVertices()) {
+    CheckErrors(-5);
+    exit(EXIT_FAILURE);
+  }
 
   std::ofstream fichero_salida("saves/salida.txt");
   if (!fichero_salida) {
@@ -58,6 +62,4 @@ int main(int argc, char* argv[]) {
   
   std::cout << "La salida se ha guardado en saves/salida.txt" << std::endl;
   fichero_salida.close();
-
-
 }

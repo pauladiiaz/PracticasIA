@@ -11,7 +11,13 @@
 
 #include "arbol.h"
 
-
+/**
+ * @brief Constructor de la clase Grafo. Lee las distancias entre los nodos y las guarda en un mapa con claves nodo-nodo
+ * @param raiz Nodo raiz del árbol de búsqueda
+ * @param nombre_fichero Nombre del fichero del que se van a leer los nodos sucesores
+ * @param origen Número del nodo origen
+ * @param destino Número del nodo destino
+ */
 Grafo::Grafo(Nodo* raiz, const std::string& nombre_fichero, const int& origen, const int& destino) : raiz_(raiz), origen_(origen), 
         destino_(destino) {
   // Leer los datos desde el fichero
@@ -39,60 +45,47 @@ Grafo::Grafo(Nodo* raiz, const std::string& nombre_fichero, const int& origen, c
   
 }
 
+/**
+ * @brief Método que implementa la búsqueda en amplitud e imprime el camino del nodo origen al destino y el costo total
+ * @param fichero Fichero de salida en el que se imprimirá la solución
+ */
 void Grafo::BusquedaAmplitud(std::ofstream& fichero) {
   int iteracion = 1, costo = 0;
   std::queue<Nodo*> cola;
   std::vector<Nodo*> inspeccionados, generados;
-  std::unordered_set<int> nodos_generados;
-  nodos_generados.insert(raiz_->GetNumero());
 
   Nodo* nodo_actual = nullptr;
   cola.push(raiz_);
   generados.emplace_back(raiz_);
-
   while (true) {
-    ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
-
     nodo_actual = cola.front();
     cola.pop();
+
+    ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
+    if (nodo_actual->GetNumero() == destino_) { // Si no hay que mostrarlo solo dejo que se interrumpa el bucle
+      iteracion++;
+      inspeccionados.emplace_back(nodo_actual);
+      ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
+      break;
+    }
 
     for (int i = 1; i <= numero_vertices_; ++i) {
       if (i != nodo_actual->GetNumero()) {
         auto it = distancias_.find(std::make_pair(i, nodo_actual->GetNumero()));
-
         if (it != distancias_.end()) {
-          if (nodos_generados.find(i) == nodos_generados.end()) {
-            Nodo* nuevo_nodo = new Nodo(i);
+          Nodo* nuevo_nodo = new Nodo(i);
+          if (RevisarRama(nuevo_nodo, nodo_actual)) {
             generados.emplace_back(nuevo_nodo);
-            cola.push(nuevo_nodo);
             nuevo_nodo->SetNodoPadre(nodo_actual);
-            nodos_generados.insert(i);
-          } else {
-            int k;
-            for (k = 0; k < generados.size(); ++k) {
-              if (generados[k]->GetNumero() == i) break;
-            }
-            Nodo* nodo_sucesor = generados[k];
-            auto it2 = std::find(inspeccionados.begin(), inspeccionados.end(), nodo_sucesor);
-            // if (RevisarRama(nodo_sucesor, nodo_actual) && it2 == inspeccionados.end()) {
-            if (RevisarRama(nodo_sucesor, nodo_actual) && it2 == inspeccionados.end()) {
-              // generados.emplace_back(nodo_sucesor); // para que se muestre en la iteración
-              cola.push(nodo_sucesor);
-            }          
-          }
+            cola.push(nuevo_nodo);
+          }          
         }
       }
     }
     inspeccionados.emplace_back(nodo_actual);
-    if (nodo_actual->GetNumero() == destino_) {
-      ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
-      break;
-    }
     iteracion++;
   }
-  // Generamos sus sucesores
   std::vector<Nodo*> camino;
-  // Hacer funcion que recorra los nodos padre
   fichero << "Camino: ";
   GenerarCamino(nodo_actual, fichero, camino);
   fichero << std::endl;
@@ -101,59 +94,52 @@ void Grafo::BusquedaAmplitud(std::ofstream& fichero) {
   fichero << "Costo: " << costo << std::endl;
 }
 
+/**
+ * @brief Método que implementa la búsqueda en profundidad e imprime el camino del nodo origen al destino y el costo total
+ * @param fichero Fichero de salida en el que se imprimirá la solución
+ */
 void Grafo::BusquedaProfundidad(std::ofstream& fichero) {
   int iteracion = 1, costo = 0;
   std::stack<Nodo*> pila;
   std::vector<Nodo*> inspeccionados, generados;
-  std::unordered_set<int> nodos_generados;
-  nodos_generados.insert(raiz_->GetNumero());
 
   Nodo* nodo_actual = nullptr;
   pila.push(raiz_);
   generados.emplace_back(raiz_);
-
   while (true) {
-    ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
-
     nodo_actual = pila.top();
     pila.pop();
 
-    for (int i = 1; i <= numero_vertices_; ++i) {
-      if (i != nodo_actual->GetNumero()) {
-        auto it = distancias_.find(std::make_pair(i, nodo_actual->GetNumero()));
-
-        if (it != distancias_.end()) {
-          if (nodos_generados.find(i) == nodos_generados.end()) {
-            Nodo* nuevo_nodo = new Nodo(i);
-            generados.emplace_back(nuevo_nodo);
-            pila.push(nuevo_nodo);
-            nuevo_nodo->SetNodoPadre(nodo_actual);
-            nodos_generados.insert(i);
-          } else {
-            int k;
-            for (k = 0; k < generados.size(); ++k) {
-              if (generados[k]->GetNumero() == i) break;
-            }
-            Nodo* nodo_sucesor = generados[k];
-            auto it2 = std::find(inspeccionados.begin(), inspeccionados.end(), nodo_sucesor);
-            if (RevisarRama(nodo_sucesor, nodo_actual) && it2 == inspeccionados.end()) {
-              // generados.emplace_back(nodo_sucesor); // para que se muestre en la iteración
-              pila.push(nodo_sucesor);
-            }          
-          }
-        }
-      }
-    }
-    inspeccionados.emplace_back(nodo_actual);
-    if (nodo_actual->GetNumero() == destino_) {
+    ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
+    if (nodo_actual->GetNumero() == destino_) { // Si no hay que mostrarlo solo dejo que se interrumpa el bucle
+      iteracion++;
+      inspeccionados.emplace_back(nodo_actual);
       ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
       break;
     }
+
+    std::vector<Nodo*> sucesores;
+    for (int i = 1; i <= numero_vertices_; ++i) {
+      if (i != nodo_actual->GetNumero()) {
+        auto it = distancias_.find(std::make_pair(i, nodo_actual->GetNumero()));
+        if (it != distancias_.end()) {
+          Nodo* nuevo_nodo = new Nodo(i);
+          if (RevisarRama(nuevo_nodo, nodo_actual)) {
+            generados.emplace_back(nuevo_nodo);
+            nuevo_nodo->SetNodoPadre(nodo_actual);
+            sucesores.emplace_back(nuevo_nodo);
+          }          
+        }
+      }
+    }
+    std::reverse(sucesores.begin(), sucesores.end());
+    for (int i = 0; i < sucesores.size(); ++i) {
+      pila.push(sucesores[i]);
+    }
+    inspeccionados.emplace_back(nodo_actual);
     iteracion++;
   }
-  // Generamos sus sucesores
   std::vector<Nodo*> camino;
-  // Hacer funcion que recorra los nodos padre
   fichero << "Camino: ";
   GenerarCamino(nodo_actual, fichero, camino);
   fichero << std::endl;
@@ -162,6 +148,13 @@ void Grafo::BusquedaProfundidad(std::ofstream& fichero) {
   fichero << "Costo: " << costo << std::endl;
 }
 
+/**
+ * @brief Método que imprime cada iteración de la búsuqeda seleccionada
+ * @param fichero Fichero de salida en el que se imprimirá la solución
+ * @param nodos_generados 
+ * @param nodos_inspeccionados
+ * @param iteracion
+ */
 void Grafo::ImprimirSolucion(std::ofstream& fichero, const std::vector<Nodo*>& nodos_generados, 
             const std::vector<Nodo*>& nodos_inspeccionados, const int& iteracion) {
   fichero << "Iteración " << iteracion << std::endl;
@@ -186,15 +179,26 @@ void Grafo::ImprimirSolucion(std::ofstream& fichero, const std::vector<Nodo*>& n
   fichero << std::endl << "---------------------------------------------" << std::endl;
 }
 
+/**
+ * @brief Método que revisa todos los nodos de una rama sean distintos del nodo a insertar
+ * @param nodo_insertar
+ * @param nodo_actual
+ * @return true si no hay otro nodo igual en la rama, false si sí
+ */
 bool Grafo::RevisarRama(Nodo* nodo_insertar, Nodo* nodo_actual) {
   Nodo* nodo_padre = nodo_actual->GetPadre();
   while (nodo_padre != nullptr) {
-    if (nodo_padre == nodo_insertar) return false;  
+    if (nodo_padre->GetNumero() == nodo_insertar->GetNumero()) return false;  
     nodo_padre = nodo_padre->GetPadre();
   }
   return true; // Se llegó hasta la raíz sin encontrar un nodo igual
 }
 
+/**
+ * @brief Método que recorre el camino y genera su coste
+ * @param camino Camino generado desde el nodo origen al nodo destino
+ * @param costo Costo total 
+ */
 void Grafo::GenerarCoste(const std::vector<Nodo*>& camino, int& costo) {
   costo = 0;
   for (int i = 0; i < camino.size(); i++) {
@@ -205,6 +209,12 @@ void Grafo::GenerarCoste(const std::vector<Nodo*>& camino, int& costo) {
   }
 }
 
+/**
+ * @brief Método que recorre desde el nodo destino los padres para generar el camino hasta el nodo origen
+ * @param nodo_actual Nodo destino
+ * @param fichero Fichero de salida
+ * @param camino Camino generado
+ */
 void Grafo::GenerarCamino(Nodo* nodo_actual, std::ofstream& fichero, std::vector<Nodo*>& camino) {
   Nodo* nodo_padre = nodo_actual->GetPadre();
   camino.emplace_back(nodo_actual);
