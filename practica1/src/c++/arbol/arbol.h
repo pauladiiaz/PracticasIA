@@ -15,6 +15,8 @@
 #include <queue>
 #include <algorithm>
 #include <stack>
+#include <cstdlib>
+#include <ctime>
 #include "../nodo/nodo.h"
 
 class Grafo {
@@ -24,6 +26,7 @@ class Grafo {
 
   void BusquedaAmplitud(std::ofstream&);
   void BusquedaProfundidad(std::ofstream&);
+  void BusquedaAmplitudModificada(std::ofstream&);
 
   void ImprimirSolucion(std::ofstream&, const std::vector<Nodo*>&, const std::vector<Nodo*>&, const int&);
   bool RevisarRama(Nodo*, Nodo*);

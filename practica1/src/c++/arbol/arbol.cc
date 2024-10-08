@@ -94,6 +94,74 @@ void Grafo::BusquedaAmplitud(std::ofstream& fichero) {
   fichero << "Costo: " << costo << std::endl;
 }
 
+void Grafo::BusquedaAmplitudModificada(std::ofstream& fichero) {
+  int iteracion = 1, costo_final = 0;
+  std::vector<Nodo*> generados, inspeccionados;
+  std::vector<std::pair<Nodo*, int>> abiertos;
+  Nodo* nodo_actual = raiz_;
+  generados.emplace_back(raiz_);
+  while (true) {
+    if (nodo_actual->GetNumero() == destino_) { 
+      iteracion++;
+      inspeccionados.emplace_back(nodo_actual);
+      ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
+      break;
+    } 
+    ImprimirSolucion(fichero, generados, inspeccionados, iteracion);
+    for (int i = 1; i <= numero_vertices_; ++i) {
+      if (i != nodo_actual->GetNumero()) {
+        auto it = distancias_.find(std::make_pair(i, nodo_actual->GetNumero()));
+        if (it != distancias_.end()) {
+          Nodo* nuevo_nodo = new Nodo(i);
+          if (RevisarRama(nuevo_nodo, nodo_actual)) {
+            generados.emplace_back(nuevo_nodo);
+            nuevo_nodo->SetNodoPadre(nodo_actual);
+            if (nuevo_nodo->GetPadre() != nullptr) {
+              Nodo* nodo_padre = nuevo_nodo->GetPadre();
+              int costo = 0;
+              while (nodo_padre != nullptr) {
+                auto it2 = distancias_.find(std::make_pair(nuevo_nodo->GetNumero(), nodo_actual->GetNumero()));
+                costo += it2->second;
+                nodo_padre = nodo_padre->GetPadre();
+              }
+              abiertos.emplace_back(nuevo_nodo, costo);
+            }
+            
+          }
+        }
+      }
+    }
+    // Buscar el mejor y peor nodo abierto para luego hacer rand()
+    std::pair<Nodo*, int> peor_nodo = abiertos[0];
+    std::pair<Nodo*, int> mejor_nodo = abiertos[0];
+    for (const auto& nodo : abiertos) {
+      if (nodo.second > peor_nodo.second) peor_nodo = nodo;
+      if (nodo.second < mejor_nodo.second) mejor_nodo = nodo;
+    }
+    srand(time(0));
+    int nodo_elegido = rand() % 2 + 1; // rango entre 1 y 2
+    if (nodo_elegido == 1) { // El peor
+      nodo_actual = peor_nodo.first;
+    } else {
+      nodo_actual = mejor_nodo.first;
+    }
+    for (int i = 0; i <= abiertos.size(); ++i) {
+      if (abiertos[i].first->GetNumero() == nodo_actual->GetNumero()) {
+        abiertos.erase(abiertos.begin() + i);
+      }
+    }
+    inspeccionados.emplace_back(nodo_actual);
+    iteracion++;
+  }
+  std::vector<Nodo*> camino;
+  fichero << "Camino: ";
+  GenerarCamino(nodo_actual, fichero, camino);
+  fichero << std::endl;
+
+  GenerarCoste(camino, costo_final);
+  fichero << "Costo: " << costo_final << std::endl;
+}
+
 /**
  * @brief Método que implementa la búsqueda en profundidad e imprime el camino del nodo origen al destino y el costo total
  * @param fichero Fichero de salida en el que se imprimirá la solución
