@@ -113,20 +113,20 @@ void Laberinto::CambiarEntrada(Coordenada nueva_entrada) {
       entrada_ = &casillas_[nueva_entrada.GetX()][nueva_entrada.GetY()];
       entrada_->SetTipo(3);
     } else {
-      throw std::runtime_error("Error: la entrada no puede ser igual a la salida");
+      throw std::runtime_error("Error: la entrada no puede ser igual a la entrada");
     }
   }
 }
 
 void Laberinto::CambiarSalida(Coordenada nueva_salida) {
-  if (nueva_salida != entrada_->GetCoordenada()) { // Si la nueva entrada es distinta a la actual
+  if (nueva_salida != salida_->GetCoordenada()) { // Si la nueva salida es distinta a la actual
     if (nueva_salida.GetX() < 0 || nueva_salida.GetX() >= casillas_.size() || nueva_salida.GetY() < 0 || nueva_salida.GetY() >= casillas_[0].size()) 
-      throw std::runtime_error("Error: la entrada no puede estar fuera del laberinto");
+      throw std::runtime_error("Error: la salida no puede estar fuera del laberinto");
     if ((nueva_salida.GetY() > 0 && nueva_salida.GetY() < casillas_[0].size() - 1) && (nueva_salida.GetX() > 0 && nueva_salida.GetX() < casillas_.size() - 1))
-      throw std::runtime_error("Error: la entrada no puede estar en medio del laberinto");
+      throw std::runtime_error("Error: la salida no puede estar en medio del laberinto");
     if ((nueva_salida.GetX() > 0 && nueva_salida.GetX() < casillas_.size() - 1) && (nueva_salida.GetY() > 0 && nueva_salida.GetY() < casillas_[0].size() - 1))
-      throw std::runtime_error("Error: la entrada no puede estar en medio del laberinto");
-    if (nueva_salida != salida_->GetCoordenada()) { // Si la nueva entrada no es igual a la salida
+      throw std::runtime_error("Error: la salida no puede estar en medio del laberinto");
+    if (nueva_salida != entrada_->GetCoordenada()) { // Si la nueva salida no es igual a la entrada
       salida_->SetTipo(1);
       salida_ = &casillas_[nueva_salida.GetX()][nueva_salida.GetY()];
       salida_->SetTipo(4);

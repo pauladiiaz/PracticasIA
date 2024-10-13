@@ -29,6 +29,8 @@ void Grafo::BusquedaA() {
     return;
   }
   std::vector<Nodo*> A, C;
+  std::vector<Nodo*> nodos_generados;
+  std::vector<Casilla*> casillas_generadas;
   int vertice = 2, iteracion = 1;
 
   Nodo* nodo_actual = raiz_;
@@ -38,7 +40,6 @@ void Grafo::BusquedaA() {
 
   while (!A.empty()) {
       nodo_actual = A.front();
-      std::cout << nodo_actual->GetCasilla()->GetCoordenada() << std::endl;
       A.erase(A.begin());
       C.push_back(nodo_actual);
 
@@ -55,45 +56,31 @@ void Grafo::BusquedaA() {
             nodo_adyacente = adyacente->GetNodo();
           } else {
             nodo_adyacente = new Nodo(vertice, adyacente);
+            nodos_generados.emplace_back(nodo_adyacente);
+            casillas_generadas.emplace_back(adyacente);
             vertice++;
             adyacente->SetNodo(nodo_adyacente);
           }
           auto it = std::find_if(A.begin(), A.end(), [nodo_adyacente](const Nodo* n) { return *n == *nodo_adyacente; });
           if (it == A.end() && std::find(C.begin(), C.end(), nodo_adyacente) == C.end()) {
             nodo_adyacente->SetNodoPadre(nodo_actual);
-            //nodo_adyacente->SetCostoAcumulado(FuncionG(nodo_adyacente));
             nodo_adyacente->SetValorF(FuncionHManhattan(adyacente, laberinto_.GetSalida()) + FuncionG(nodo_adyacente));
             A.push_back(nodo_adyacente);
-          } else if (it != A.end()) {
-            Nodo* nodo_padre_original = nodo_adyacente->GetPadre();
-            std::cout << "Padre original " << nodo_adyacente->GetPadre() << std::endl;
-            nodo_adyacente->SetNodoPadre(nodo_actual);
-            std::cout << "Padre temporal " << nodo_adyacente->GetPadre() << std::endl;
-            int nuevoValorF = FuncionHManhattan(adyacente, laberinto_.GetSalida()) + FuncionG(nodo_adyacente);
-            std::cout << nodo_actual->GetCasilla()->GetCoordenada() << " "; 
-            std::cout << nodo_adyacente->GetValorF() << " " << FuncionF(FuncionHManhattan(adyacente, laberinto_.GetSalida()), FuncionG(nodo_adyacente)) << std::endl;
-            if (nuevoValorF < nodo_adyacente->GetValorF()) {
-              nodo_adyacente->SetValorF(nuevoValorF);
-              nodo_adyacente->SetNodoPadre(nodo_actual);
-            } else {
-              nodo_adyacente->SetNodoPadre(nodo_padre_original);
-            }
-          }
-          // std::cout << adyacente->GetCoordenada() << " " << nodo_adyacente->GetValorF() << std::endl;
+          } 
         }
       }
       iteracion++;
       std::sort(A.begin(), A.end(), [](const Nodo* a, const Nodo* b) { return a->GetValorF() < b->GetValorF(); });
-      for (auto nodo : A) {
-        std::cout << nodo->GetCasilla()->GetCoordenada() << " " << nodo->GetValorF();
-      }
-      std::cout << std::endl;
   }
   if (!encontrado) std::cout << "No se ha encontrado un camino" << std::endl;
+  else std::cout << "Camino encontrado" << std::endl;
   fichero.close();
 
-  // Liberar memoria de los nodos creados dinámicamente
-  for (auto& nodo : C) {
+  // Liberar memoria de los nodos creados dinámicamente y desasignar casillas
+  for (auto casilla : casillas_generadas) {
+    if (casilla->GetNodo() != nullptr) casilla->SetNodo(nullptr);
+  }
+  for (auto& nodo : nodos_generados) {
     if (nodo) delete nodo;
   }
 }
@@ -214,13 +201,13 @@ void Grafo::GenerarCamino(Nodo* nodo_actual, std::ofstream& fichero, std::vector
       if (casilla.GetTipo() == -1) {
         fichero << "* "; // Camino
       } else if (casilla.GetTipo() == 0) {
-        fichero << "0 "; // Transitable
+        fichero << "  "; // Transitable
       } else if (casilla.GetTipo() == 1) {
-        fichero << "1 "; // No transitable
+        fichero << "■ "; // No transitable
       } else if (casilla.GetTipo() == 3) {
-        fichero << "E "; // Entrada
+        fichero << "S "; // Entrada
       } else if (casilla.GetTipo() == 4) {
-        fichero << "S "; // Salida
+        fichero << "E "; // Salida
       }
     }
     fichero << std::endl;

@@ -34,7 +34,10 @@ class Grafo {
   int FuncionG(Nodo*);
   int FuncionF(int, int);
 
-  void CambiarEntrada(Coordenada nueva_entrada) { laberinto_.CambiarEntrada(nueva_entrada); };
+  void CambiarEntrada(Coordenada nueva_entrada) { 
+    laberinto_.CambiarEntrada(nueva_entrada); 
+    raiz_->SetCasilla(laberinto_.GetEntrada());
+    };
   void CambiarSalida(Coordenada nueva_salida) { laberinto_.CambiarSalida(nueva_salida); };
 
   void ImprimirSolucion(std::ofstream&, const std::vector<Nodo*>&, const std::vector<Nodo*>&, const int&);
@@ -49,7 +52,9 @@ class Grafo {
 
   Grafo& operator=(const Grafo& other) {
     this->laberinto_ = other.laberinto_;
-    this->raiz_ = other.raiz_;
+    delete this->raiz_; // si falla al cambiar de fichero borrar esto
+    delete other.raiz_;
+    this->raiz_ = new Nodo(1, this->laberinto_.GetEntrada());
     this->numero_filas_ = other.numero_filas_;
     this->numero_columnas_ = other.numero_columnas_;
     return *this;

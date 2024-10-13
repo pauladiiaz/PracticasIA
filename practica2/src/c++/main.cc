@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     switch (opcion)
     {
     case 1: {// Cambiar entrada y salida
-      std::cout << "Introduzca las coordenadas de la nueva entrada: " << std::endl;
+      std::cout << "Introduzca las coordenadas de la nueva entrada (se empiezan desde 0): " << std::endl;
       std::cout << "Fila: ";
       int x, y;
       std::cin >> x;
