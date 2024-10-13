@@ -12,6 +12,7 @@
 #include <vector>
 #include <unordered_set>
 #include <map>
+class Casilla;
 #include "../casilla/casilla.h"
 #include "../coordenada/coordenada.h"
 

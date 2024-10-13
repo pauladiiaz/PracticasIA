@@ -17,6 +17,7 @@
 #include <stack>
 #include <cstdlib>
 #include <ctime>
+#include <unordered_set>
 #include "../nodo/nodo.h"
 #include "../laberinto/laberinto.h"
 
@@ -31,6 +32,7 @@ class Grafo {
   void BusquedaA();
   int FuncionHManhattan(Casilla*, Casilla*);
   int FuncionG(Nodo*);
+  int FuncionF(int, int);
 
   void CambiarEntrada(Coordenada nueva_entrada) { laberinto_.CambiarEntrada(nueva_entrada); };
   void CambiarSalida(Coordenada nueva_salida) { laberinto_.CambiarSalida(nueva_salida); };

@@ -11,77 +11,73 @@
 
 #include "grafo.h"
 
+struct ComparaNodo {
+  bool operator()(Nodo* a, Nodo* b) const {
+    return a->GetValorF() > b->GetValorF();
+  }
+};
+
 /**
  * @brief Método que implementa la búsqueda A*
  * @param fichero Fichero de salida en el que se imprimirá la solución
 */
 
-#include "grafo.h"
-#include <queue>
-#include <unordered_set>
-
-struct CompareNodo {
-    bool operator()(Nodo* const& n1, Nodo* const& n2) {
-        return n1->GetValorF() > n2->GetValorF();
-    }
-};
-
-#include "grafo.h"
-#include <queue>
-#include <unordered_set>
-
-struct ComparaNodo {
-    bool operator()(Nodo* const& n1, Nodo* const& n2) {
-        return n1->GetValorF() > n2->GetValorF();
-    }
-};
-
 void Grafo::BusquedaA() {
   std::ofstream fichero("saves/solucion.txt");
+  if (!fichero.is_open()) {
+    std::cerr << "Error al abrir el archivo de solución." << std::endl;
+    return;
+  }
+  std::vector<Nodo*> A, C;
+  int vertice = 2, iteracion = 1;
+
   Nodo* nodo_actual = raiz_;
-  std::vector<Nodo*> generados, inspeccionados;
-  std::priority_queue<Nodo*, std::vector<Nodo*>, ComparaNodo> abiertos;
-  std::unordered_set<Nodo*> cerrados;
+  raiz_->SetValorF(FuncionHManhattan(nodo_actual->GetCasilla(), laberinto_.GetSalida()));
+  A.push_back(nodo_actual);
+  bool encontrado = false;
 
-  abiertos.push(nodo_actual);
-  int iteracion = 0;
-  raiz_->SetValorF(FuncionHManhattan(raiz_->GetCasilla(), laberinto_.GetSalida()));
-  int vertice = 1;
+  while (!A.empty()) {
+      if (iteracion == 3) break;
+      nodo_actual = A.front();
+      A.erase(A.begin());
+      C.push_back(nodo_actual);
 
-  while (!abiertos.empty()) {
-    if (iteracion == 2) break;
-    nodo_actual = abiertos.top();
-    abiertos.pop();
-    cerrados.insert(nodo_actual);
-    generados.push_back(nodo_actual);
-
-    if (nodo_actual->GetCasilla()->GetTipo() == 4) {
-      std::vector<Nodo*> camino;
-      GenerarCamino(nodo_actual, fichero, camino);
-      fichero << std::endl << "Coste total: " << nodo_actual->GetCostoAcumulado() << std::endl;
-      fichero.close();
-      return;
-    }
-    // Comprobaciones
-    std::cout << "Coordenada nodo actual: " << nodo_actual->GetCasilla()->GetCoordenada() << std::endl;
-    std::cout << "Adyacentes: " << std::endl;
-    auto adyacentes = laberinto_.GetCasillasAdyacentes(nodo_actual->GetCasilla());
-    for (auto adyacente : adyacentes) {
-      vertice++;
-      std::cout << adyacente->GetCoordenada() << std::endl;
-      Nodo* nodo_adyacente = new Nodo(vertice, adyacente);
-      nodo_adyacente->SetNodoPadre(nodo_actual);
-      int valor_g = FuncionG(nodo_adyacente);
-      nodo_adyacente->SetCostoAcumulado(valor_g);
-      nodo_adyacente->SetValorF(valor_g + FuncionHManhattan(adyacente, laberinto_.GetSalida()));
-      std::cout << nodo_adyacente->GetValorF() << std::endl;
-
-      if (cerrados.find(nodo_adyacente) == cerrados.end()) {
-        abiertos.push(nodo_adyacente);
+      if (nodo_actual->GetCasilla()->GetTipo() == 4) { // Se ha llegado a la salida
+        encontrado = true;
+        std::vector<Nodo*> camino;
+        GenerarCamino(nodo_actual, fichero, camino);
+        break;
+      } else {
+        std::vector<Casilla*> adyacentes = laberinto_.GetCasillasAdyacentes(nodo_actual->GetCasilla());
+        for (auto adyacente : adyacentes) {
+          Nodo* nodo_adyacente;
+          if (adyacente->GetNodo() != nullptr) {
+            nodo_adyacente = adyacente->GetNodo();
+          } else {
+            nodo_adyacente = new Nodo(vertice++, adyacente);
+            adyacente->SetNodo(nodo_adyacente);
+          }
+          auto it = std::find_if(A.begin(), A.end(), [nodo_adyacente](const Nodo* n) { return *n == *nodo_adyacente; });
+          if (it == A.end() && std::find(C.begin(), C.end(), nodo_adyacente) == C.end()) {
+            nodo_adyacente->SetNodoPadre(nodo_actual);
+            nodo_adyacente->SetCostoAcumulado(FuncionG(nodo_adyacente));
+            nodo_adyacente->SetValorF(FuncionHManhattan(adyacente, laberinto_.GetSalida()) + nodo_adyacente->GetCostoAcumulado());
+            A.push_back(nodo_adyacente);
+          } else if (it != A.end()) {
+            
+          }
+          std::cout << adyacente->GetCoordenada() << " " << nodo_adyacente->GetValorF() << std::endl;
+        }
       }
-    }
-    inspeccionados.push_back(nodo_actual);
-    iteracion++;
+      iteracion++;
+      std::sort(A.begin(), A.end(), [](const Nodo* a, const Nodo* b) { return a->GetValorF() < b->GetValorF(); });
+  }
+  if (!encontrado) std::cout << "No se ha encontrado un camino" << std::endl;
+  fichero.close();
+
+  // Liberar memoria de los nodos creados dinámicamente
+  for (auto& nodo : C) {
+    if (nodo) delete nodo;
   }
 }
 
@@ -92,14 +88,24 @@ int Grafo::FuncionHManhattan(Casilla* actual, Casilla* destino) {
 }
 
 int Grafo::FuncionG(Nodo* nodo_actual) {
+  int g = 0; // Inicializa g a 0
   Nodo* nodo_padre = nodo_actual->GetPadre();
-  int g = (nodo_padre->GetCasilla()->GetCoordenada().GetX() == nodo_actual->GetCasilla()->GetCoordenada().GetX() || 
-        nodo_padre->GetCasilla()->GetCoordenada().GetY() == nodo_actual->GetCasilla()->GetCoordenada().GetY() ? 5 : 7);
+  if (nodo_padre != nullptr) {
+    bool esDiagonal = (nodo_padre->GetCasilla()->GetCoordenada().GetX() != nodo_actual->GetCasilla()->GetCoordenada().GetX()) && 
+                      (nodo_padre->GetCasilla()->GetCoordenada().GetY() != nodo_actual->GetCasilla()->GetCoordenada().GetY());
+    int costo_movimiento = esDiagonal ? 7 : 5; // Costo 7 si es diagonal, de lo contrario 5
+    g += costo_movimiento;
+  }
   while (nodo_padre != nullptr) {
     g += nodo_padre->GetCostoAcumulado();
     nodo_padre = nodo_padre->GetPadre();
   }
+
   return g;
+}
+
+int Grafo::FuncionF(int funcion_g, int funcion_h) {
+  return funcion_g + funcion_h;
 }
 
 /**
