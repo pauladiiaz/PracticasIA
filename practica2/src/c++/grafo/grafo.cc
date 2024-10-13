@@ -37,8 +37,8 @@ void Grafo::BusquedaA() {
   bool encontrado = false;
 
   while (!A.empty()) {
-      if (iteracion == 3) break;
       nodo_actual = A.front();
+      std::cout << nodo_actual->GetCasilla()->GetCoordenada() << std::endl;
       A.erase(A.begin());
       C.push_back(nodo_actual);
 
@@ -54,23 +54,40 @@ void Grafo::BusquedaA() {
           if (adyacente->GetNodo() != nullptr) {
             nodo_adyacente = adyacente->GetNodo();
           } else {
-            nodo_adyacente = new Nodo(vertice++, adyacente);
+            nodo_adyacente = new Nodo(vertice, adyacente);
+            vertice++;
             adyacente->SetNodo(nodo_adyacente);
           }
           auto it = std::find_if(A.begin(), A.end(), [nodo_adyacente](const Nodo* n) { return *n == *nodo_adyacente; });
           if (it == A.end() && std::find(C.begin(), C.end(), nodo_adyacente) == C.end()) {
             nodo_adyacente->SetNodoPadre(nodo_actual);
-            nodo_adyacente->SetCostoAcumulado(FuncionG(nodo_adyacente));
-            nodo_adyacente->SetValorF(FuncionHManhattan(adyacente, laberinto_.GetSalida()) + nodo_adyacente->GetCostoAcumulado());
+            //nodo_adyacente->SetCostoAcumulado(FuncionG(nodo_adyacente));
+            nodo_adyacente->SetValorF(FuncionHManhattan(adyacente, laberinto_.GetSalida()) + FuncionG(nodo_adyacente));
             A.push_back(nodo_adyacente);
           } else if (it != A.end()) {
-            
+            Nodo* nodo_padre_original = nodo_adyacente->GetPadre();
+            std::cout << "Padre original " << nodo_adyacente->GetPadre() << std::endl;
+            nodo_adyacente->SetNodoPadre(nodo_actual);
+            std::cout << "Padre temporal " << nodo_adyacente->GetPadre() << std::endl;
+            int nuevoValorF = FuncionHManhattan(adyacente, laberinto_.GetSalida()) + FuncionG(nodo_adyacente);
+            std::cout << nodo_actual->GetCasilla()->GetCoordenada() << " "; 
+            std::cout << nodo_adyacente->GetValorF() << " " << FuncionF(FuncionHManhattan(adyacente, laberinto_.GetSalida()), FuncionG(nodo_adyacente)) << std::endl;
+            if (nuevoValorF < nodo_adyacente->GetValorF()) {
+              nodo_adyacente->SetValorF(nuevoValorF);
+              nodo_adyacente->SetNodoPadre(nodo_actual);
+            } else {
+              nodo_adyacente->SetNodoPadre(nodo_padre_original);
+            }
           }
-          std::cout << adyacente->GetCoordenada() << " " << nodo_adyacente->GetValorF() << std::endl;
+          // std::cout << adyacente->GetCoordenada() << " " << nodo_adyacente->GetValorF() << std::endl;
         }
       }
       iteracion++;
       std::sort(A.begin(), A.end(), [](const Nodo* a, const Nodo* b) { return a->GetValorF() < b->GetValorF(); });
+      for (auto nodo : A) {
+        std::cout << nodo->GetCasilla()->GetCoordenada() << " " << nodo->GetValorF();
+      }
+      std::cout << std::endl;
   }
   if (!encontrado) std::cout << "No se ha encontrado un camino" << std::endl;
   fichero.close();
@@ -88,20 +105,16 @@ int Grafo::FuncionHManhattan(Casilla* actual, Casilla* destino) {
 }
 
 int Grafo::FuncionG(Nodo* nodo_actual) {
-  int g = 0; // Inicializa g a 0
-  Nodo* nodo_padre = nodo_actual->GetPadre();
-  if (nodo_padre != nullptr) {
-    bool esDiagonal = (nodo_padre->GetCasilla()->GetCoordenada().GetX() != nodo_actual->GetCasilla()->GetCoordenada().GetX()) && 
-                      (nodo_padre->GetCasilla()->GetCoordenada().GetY() != nodo_actual->GetCasilla()->GetCoordenada().GetY());
-    int costo_movimiento = esDiagonal ? 7 : 5; // Costo 7 si es diagonal, de lo contrario 5
-    g += costo_movimiento;
-  }
-  while (nodo_padre != nullptr) {
-    g += nodo_padre->GetCostoAcumulado();
-    nodo_padre = nodo_padre->GetPadre();
-  }
+  // Caso base: Si no hay padre, el costo es 0
+  if (nodo_actual->GetPadre() == nullptr) return 0;
+  bool esDiagonal = (nodo_actual->GetPadre()->GetCasilla()->GetCoordenada().GetX() != nodo_actual->GetCasilla()->GetCoordenada().GetX()) && 
+                    (nodo_actual->GetPadre()->GetCasilla()->GetCoordenada().GetY() != nodo_actual->GetCasilla()->GetCoordenada().GetY());
+  int costo_movimiento = esDiagonal ? 7 : 5;
 
-  return g;
+  // Llamada recursiva para calcular el costo desde el inicio hasta el padre
+  int costo_hasta_padre = FuncionG(nodo_actual->GetPadre());
+
+  return costo_movimiento + costo_hasta_padre;
 }
 
 int Grafo::FuncionF(int funcion_g, int funcion_h) {
@@ -191,7 +204,7 @@ void Grafo::GenerarCamino(Nodo* nodo_actual, std::ofstream& fichero, std::vector
   for (auto& nodo : camino) {
     auto casilla = nodo->GetCasilla();
     if (casilla != laberinto_.GetEntrada() && casilla != laberinto_.GetSalida()) {
-      casillas[casilla->GetCoordenada().GetY()][casilla->GetCoordenada().GetX()].SetTipo(-1); // Usamos -1 para marcar el camino
+      casillas[casilla->GetCoordenada().GetX()][casilla->GetCoordenada().GetY()].SetTipo(-1); // Usamos -1 para marcar el camino
     }
   }
 

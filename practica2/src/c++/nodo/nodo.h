@@ -21,23 +21,20 @@ class Nodo {
   Nodo() : nodo_padre_(nullptr) {}
   Nodo(int numero_vertice) : numero_vertice_(numero_vertice), nodo_padre_(nullptr) {}
   Nodo(int numero_vertice, Casilla* casilla_asociada) : numero_vertice_(numero_vertice), 
-      casilla_asociada_(casilla_asociada), nodo_padre_(nullptr), costo_acumulado_(0), valor_f_(0) {}
+      casilla_asociada_(casilla_asociada), nodo_padre_(nullptr), valor_f_(0) {}
   int GetNumero() const { return numero_vertice_; }
   Nodo* GetPadre() const { return nodo_padre_; }
   Casilla* GetCasilla() const { return casilla_asociada_; }
-  int GetCostoAcumulado() const { return costo_acumulado_; }
   int GetValorF() const { return valor_f_; }
 
   void SetValorF(int valor) { valor_f_ = valor; }
-  void SetCostoAcumulado(int costo) { costo_acumulado_ = costo; }
   void SetNodoPadre(Nodo* padre);
   bool operator<(const Nodo& otro) const { return this->GetNumero() < otro.GetNumero(); }
-  bool operator==(const Nodo& other) const { return numero_vertice_ == other.numero_vertice_; }
+  bool operator==(const Nodo& other) const { return this->casilla_asociada_ == other.casilla_asociada_; }
   
  private:
   int numero_vertice_;
   Casilla* casilla_asociada_;
   Nodo* nodo_padre_;
-  int costo_acumulado_;
   int valor_f_;
 };

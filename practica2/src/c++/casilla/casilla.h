@@ -22,7 +22,7 @@ class Casilla {
     os << casilla.tipo_;
     return os;
   }
-  bool EsTransitable() const { return tipo_ == 0; }
+  bool EsTransitable() const { return tipo_ == 0 || tipo_ == 4; }
 
   void SetCoordenadas(const Coordenada& coordenadas) { coordenadas_ = coordenadas; }
   void SetTipo(int tipo) { tipo_ = tipo; }
