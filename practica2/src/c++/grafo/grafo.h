@@ -14,7 +14,6 @@
 #include <map>
 #include <queue>
 #include <algorithm>
-#include <stack>
 #include <cstdlib>
 #include <ctime>
 #include <unordered_set>
