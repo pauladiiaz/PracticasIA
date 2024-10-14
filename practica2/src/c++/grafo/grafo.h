@@ -29,7 +29,7 @@ class Grafo {
   }
   Grafo(Nodo* raiz, const std::string& nombre_fichero) : raiz_(raiz), laberinto_(nombre_fichero, numero_filas_, numero_columnas_) {}
   
-  void BusquedaA();
+  void BusquedaA(std::ofstream&);
   int FuncionHManhattan(Casilla*, Casilla*);
   int FuncionG(Nodo*);
   int FuncionF(int, int);
@@ -40,10 +40,10 @@ class Grafo {
     };
   void CambiarSalida(Coordenada nueva_salida) { laberinto_.CambiarSalida(nueva_salida); };
 
-  void ImprimirSolucion(std::ofstream&, const std::vector<Nodo*>&, const std::vector<Nodo*>&, const int&);
+  void ImprimirSolucion(std::string&, const std::vector<Nodo*>&, const std::vector<Nodo*>&, const int&);
   bool RevisarRama(Nodo*, Nodo*);
   void GenerarCoste(const std::vector<Nodo*>&, int&);
-  void GenerarCamino(Nodo*, std::ofstream&, std::vector<Nodo*>&);
+  void GenerarCamino(Nodo*, std::ofstream&, std::vector<Nodo*>&, int, int);
 
   Nodo* GetRaiz() const { return raiz_; }
   Laberinto GetLaberinto() const { return laberinto_; }

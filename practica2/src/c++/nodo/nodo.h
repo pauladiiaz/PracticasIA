@@ -26,8 +26,13 @@ class Nodo {
   Nodo* GetPadre() const { return nodo_padre_; }
   Casilla* GetCasilla() const { return casilla_asociada_; }
   int GetValorF() const { return valor_f_; }
+  int GetValorH() const { return valor_h_; }
+  int GetValorG() const { return valor_g_; }
+  int GetVertice() const { return numero_vertice_; }
 
   void SetValorF(int valor) { valor_f_ = valor; }
+  void SetValorG(int valor) { valor_g_ = valor; }
+  void SetValorH(int valor) { valor_h_ = valor; }
   void SetNodoPadre(Nodo* padre);
   void SetCasilla(Casilla* casilla) { casilla_asociada_ = casilla; }
   bool operator<(const Nodo& otro) const { return this->GetNumero() < otro.GetNumero(); }
@@ -37,5 +42,5 @@ class Nodo {
   int numero_vertice_;
   Casilla* casilla_asociada_;
   Nodo* nodo_padre_;
-  int valor_f_;
+  int valor_f_, valor_g_, valor_h_;
 };

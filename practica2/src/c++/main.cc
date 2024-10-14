@@ -17,6 +17,14 @@ int main(int argc, char* argv[]) {
   std::string nombre_fichero = "";
   int error = CheckErrors(CheckParams(argc, argv, nombre_fichero));
   if (error != 0) exit(EXIT_FAILURE);
+  size_t pos_inicio = nombre_fichero.find_last_of('/') + 1; // +1 para omitir el '/'
+  size_t pos_fin = nombre_fichero.find_last_of('.');
+  std::string instancia = nombre_fichero.substr(pos_inicio, pos_fin - pos_inicio);
+  std::string nombre_fichero_salida = std::string("saves/salida_") + instancia + std::string(".txt");
+  std::cout << nombre_fichero_salida << std::endl;
+  std::ofstream fichero_salida(nombre_fichero_salida);
+  
+  if (!fichero_salida) throw std::runtime_error("Error: No se ha podido abrir el fichero de salida");
 
   int opcion;
   Grafo grafo(nombre_fichero);
@@ -55,26 +63,29 @@ int main(int argc, char* argv[]) {
     case 2: { // Cambiar fichero
       std::cout << "Introduzca el nombre del fichero: ";
       std::cin >> nombre_fichero;
+      pos_inicio = nombre_fichero.find_last_of('/') + 1; // +1 para omitir el '/'
+      pos_fin = nombre_fichero.find_last_of('.');
+      std::string instancia = nombre_fichero.substr(pos_inicio, pos_fin - pos_inicio);
       grafo = Grafo(nombre_fichero);
+      fichero_salida.close();
+      fichero_salida = std::ofstream(std::string("saves/salida_") + instancia + std::string(".txt"));
       break;
     }
     case 3: { // Buscar solución
-      grafo.BusquedaA();
+      fichero_salida << "-----------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+      fichero_salida << "Instancia      n    m    S   E                  Camino         Coste  Número de nodos generados   Número de nodos inspeccionados" << std::endl;
+      fichero_salida << "-----------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+      fichero_salida << "    " << instancia << "    " << grafo.GetNumeroFilas() << "   " << grafo.GetNumeroColumnas() << "  " << grafo.GetLaberinto().GetEntrada()->GetCoordenada();
+      fichero_salida << "  " << grafo.GetLaberinto().GetSalida()->GetCoordenada() << "  ";
+
+      grafo.BusquedaA(fichero_salida);
       break;
     }
     default: {
       std::cout << "Fin del programa" << std::endl;
+      fichero_salida.close();
       break;
     }
     }
   } while (opcion != 4);
-
-  // std::ofstream fichero_salida("saves/salida.txt");
-  // if (!fichero_salida) {
-  //   CheckErrors(-2);
-  //   exit(EXIT_FAILURE);
-  // }
-  
-  // std::cout << "La salida se ha guardado en saves/salida.txt" << std::endl;
-  // fichero_salida.close();
 }
