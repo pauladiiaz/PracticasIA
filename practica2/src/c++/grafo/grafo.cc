@@ -33,7 +33,7 @@ void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& inst
   Nodo* nodo_actual = raiz_;
   nodo_actual->SetValorG(0); // g(n) inicial es 0
   nodos_generados.emplace_back(nodo_actual);
-  nodo_actual->SetValorH(FuncionHManhattan(nodo_actual->GetCasilla(), laberinto_.GetSalida())); // h(n) inicial
+  nodo_actual->SetValorH(FuncionHCombinada(nodo_actual->GetCasilla(), laberinto_.GetSalida())); // h(n) inicial
   nodo_actual->SetValorF(nodo_actual->GetValorG() + nodo_actual->GetValorH()); // f(n) = g(n) + h(n)
   
   A.emplace_back(nodo_actual); // Agregar el nodo inicial a la lista abierta
@@ -73,7 +73,7 @@ void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& inst
         if (it == A.end()) {
           // Si el nodo no está en A (lista abierta), añadirlo
           nodo_adyacente->SetValorG(FuncionG(nodo_adyacente));
-          nodo_adyacente->SetValorH(FuncionHManhattan(adyacente, laberinto_.GetSalida()));
+          nodo_adyacente->SetValorH(FuncionHCombinada(adyacente, laberinto_.GetSalida()));
           nodo_adyacente->SetValorF(nodo_adyacente->GetValorG() + nodo_adyacente->GetValorH());
           A.emplace_back(nodo_adyacente);
         } else { 
@@ -120,6 +120,41 @@ int Grafo::FuncionHManhattan(Casilla* actual, Casilla* destino) {
   const int w = 3;
   return (abs(actual->GetCoordenada().GetX() - destino->GetCoordenada().GetX()) + 
         abs(actual->GetCoordenada().GetY() - destino->GetCoordenada().GetY())) * w;
+}
+
+/**
+ * @brief Método que implementa una función heurística variante de la distancia de Chebyshev. Calcula dx y dy para luego usar el mayor de estos valores para estimar el costo.
+ *        Se ha ajustado para reflehar la diferencia de costo entre ir recto e ir en diagonal
+ * @param actual Casilla actual
+ * @param destino Casilla destino
+ * @return El valor de la función heurística
+*/
+int Grafo::FuncionHAdaptada(Casilla* actual, Casilla* destino) {
+  int dx = abs(actual->GetCoordenada().GetX() - destino->GetCoordenada().GetX());
+  int dy = abs(actual->GetCoordenada().GetY() - destino->GetCoordenada().GetY());
+  int movimientosDiagonales = std::min(dx, dy);
+  int movimientosRectos = std::max(dx, dy) - movimientosDiagonales;
+  return movimientosDiagonales * 7 + movimientosRectos * 5;
+}
+
+/**
+ * @brief Método que implementa una función heurística realiza una combinación ponderada la distancia de Manhattan y la distancia euclidiana
+ *        La idea es ponderar la distancia de Manhattan para reflejar el costo de los movimientos rectos y agregar una pequeña proporción de la distancia euclidiana
+ *        para ajustar el costo adicional de los movimientos diagonales
+ * @param actual Casilla actual
+ * @param destino Casilla destino
+ * @return El valor de la función heurística
+*/
+int Grafo::FuncionHCombinada(Casilla* actual, Casilla* destino) {
+  int dx = std::abs(actual->GetCoordenada().GetX() - destino->GetCoordenada().GetX());
+  int dy = std::abs(actual->GetCoordenada().GetY() - destino->GetCoordenada().GetY());
+  int dManhattan = (dx + dy) * 5; // Costo de movimiento recto
+  double dEuclidiana = std::sqrt(dx*dx + dy*dy);
+  
+  // Estimación del componente diagonal
+  double componenteDiagonal = std::max(0.0, dEuclidiana - std::max(dx, dy)) * (7 - 5);
+  
+  return dManhattan + static_cast<int>(componenteDiagonal);
 }
 
 /**

@@ -32,6 +32,8 @@ class Grafo {
   void BusquedaA(const std::string&, const std::string&);
   int FuncionHManhattan(Casilla*, Casilla*);
   int FuncionG(Nodo*);
+  int FuncionHAdaptada(Casilla*, Casilla*);
+  int FuncionHCombinada(Casilla*, Casilla*);
 
   void CambiarEntrada(Coordenada nueva_entrada) { 
     laberinto_.CambiarEntrada(nueva_entrada); 
