@@ -11,12 +11,6 @@
 
 #include "grafo.h"
 
-struct ComparaNodo {
-  bool operator()(Nodo* a, Nodo* b) const {
-    return a->GetValorF() > b->GetValorF();
-  }
-};
-
 /**
  * @brief Método que implementa la búsqueda A*
  * @param fichero Fichero de salida en el que se imprimirá la solución
@@ -25,7 +19,7 @@ struct ComparaNodo {
 void Grafo::BusquedaA(std::ofstream& fichero) {
   std::vector<Nodo*> A, C; // Lista de nodos abiertos (A) y cerrados (C)
   std::vector<Nodo*> nodos_generados, nodos_inspeccionados;
-  std::vector<Casilla*> casillas_generadas;
+  std::vector<Casilla*> casillas_generadas; // Para desvincular los nodos luego
   std::string iteraciones = "";
   int vertice = 2, iteracion = 1;
 
@@ -36,29 +30,22 @@ void Grafo::BusquedaA(std::ofstream& fichero) {
   nodo_actual->SetValorH(FuncionHManhattan(nodo_actual->GetCasilla(), laberinto_.GetSalida())); // h(n) inicial
   nodo_actual->SetValorF(nodo_actual->GetValorG() + nodo_actual->GetValorH()); // f(n) = g(n) + h(n)
   
-  A.push_back(nodo_actual); // Agregar el nodo inicial a la lista abierta
+  A.emplace_back(nodo_actual); // Agregar el nodo inicial a la lista abierta
   bool encontrado = false;
 
   while (!A.empty()) {
     ImprimirSolucion(iteraciones, nodos_generados, nodos_inspeccionados, iteracion);
-    // Seleccionar el nodo de menor coste f(n) en la lista A
     std::sort(A.begin(), A.end(), [](const Nodo* a, const Nodo* b) { return a->GetValorF() < b->GetValorF(); });
-    for (auto nodo : A) {
-      std::cout << nodo->GetCasilla()->GetCoordenada() << " ";
-    }
-    std::cout << std::endl;
-    nodo_actual = A.front();
+    nodo_actual = A.front(); // Cogemos el nodo con menor f(n)
     A.erase(A.begin()); // Quitarlo de A
-    C.push_back(nodo_actual); // Agregarlo a la lista de cerrados C
-    nodos_inspeccionados.emplace_back(nodo_actual);
+    C.emplace_back(nodo_actual); // Agregarlo a la lista de cerrados C
 
     // Si se llega a la salida
-    if (nodo_actual->GetCasilla()->GetTipo() == 4) { // Tipo 4 es la salida
+    if (nodo_actual->GetCasilla()->GetTipo() == 4) { 
       encontrado = true;
       break;
     }
-    std::cout << "Nodo actual: " << nodo_actual->GetCasilla()->GetCoordenada() << " " << nodo_actual->GetValorF() << " " << nodo_actual->GetValorG() << " " << nodo_actual->GetValorH() << std::endl;
-    // Obtener nodos adyacentes
+    nodos_inspeccionados.emplace_back(nodo_actual);
     std::vector<Casilla*> adyacentes = laberinto_.GetCasillasAdyacentes(nodo_actual->GetCasilla());
     for (auto adyacente : adyacentes) {
       Nodo* nodo_adyacente;
@@ -74,24 +61,26 @@ void Grafo::BusquedaA(std::ofstream& fichero) {
       }
       // Si el nodo no está en C (lista cerrada)
       if (std::find(C.begin(), C.end(), nodo_adyacente) == C.end()) {
-        Nodo* padre_original = nodo_adyacente->GetPadre();
-        nodo_adyacente->SetNodoPadre(nodo_actual);
-        int nuevo_g = FuncionG(nodo_adyacente);
         auto it = std::find(A.begin(), A.end(), nodo_adyacente);
         if (it == A.end()) {
           // Si el nodo no está en A (lista abierta), añadirlo
-          nodo_adyacente->SetValorG(nuevo_g);
+          nodo_adyacente->SetNodoPadre(nodo_actual);
+          nodo_adyacente->SetValorG(FuncionG(nodo_adyacente));
           nodo_adyacente->SetValorH(FuncionHManhattan(adyacente, laberinto_.GetSalida()));
-          nodo_adyacente->SetValorF(nuevo_g + nodo_adyacente->GetValorH());
-          A.push_back(nodo_adyacente);
-        } else if (nuevo_g < nodo_adyacente->GetValorG()) {
-          // Si el nodo ya está en A y encontramos un camino mejor, actualizar g(n) y f(n)
-          nodo_adyacente->SetValorG(nuevo_g);
-          nodo_adyacente->SetValorF(nuevo_g + nodo_adyacente->GetValorH());
-        } else if (nuevo_g >= nodo_adyacente->GetValorG()) {
-          nodo_adyacente->SetNodoPadre(padre_original);
+          nodo_adyacente->SetValorF(nodo_adyacente->GetValorG() + nodo_adyacente->GetValorH());
+          A.emplace_back(nodo_adyacente);
+        } else { 
+          Nodo* padre_original = nodo_adyacente->GetPadre();
+          nodo_adyacente->SetNodoPadre(nodo_actual);
+          int nuevo_g = FuncionG(nodo_adyacente); //+ (EsDiagonal(nodo_adyacente) ? 7 : 5);
+          if (nuevo_g < nodo_adyacente->GetValorG()) {
+            nodo_adyacente->SetNodoPadre(nodo_actual);
+            nodo_adyacente->SetValorG(nuevo_g);
+            nodo_adyacente->SetValorF(nodo_adyacente->GetValorG() + nodo_adyacente->GetValorH());
+          } else {
+            nodo_adyacente->SetNodoPadre(padre_original);
+          }
         }
-        std::cout << "Revisado: " << nodo_adyacente->GetCasilla()->GetCoordenada() << "f(n)= " << nodo_adyacente->GetValorF() << " g(n)= " << nodo_adyacente->GetValorG() << " h(n)= " << nodo_adyacente->GetValorH() << std::endl; 
       }
     }
     iteracion++;
@@ -124,18 +113,33 @@ int Grafo::FuncionHManhattan(Casilla* actual, Casilla* destino) {
 }
 
 int Grafo::FuncionG(Nodo* nodo_actual) {
-  // Si no tiene un padre, entonces es la raíz, g(n) = 0
-  if (nodo_actual->GetPadre() == nullptr) return 0;
+  int costo = 0;
+  Nodo* nodo_iter = nodo_actual;
 
-  bool esDiagonal = (nodo_actual->GetPadre()->GetCasilla()->GetCoordenada().GetX() != nodo_actual->GetCasilla()->GetCoordenada().GetX()) && 
-                    (nodo_actual->GetPadre()->GetCasilla()->GetCoordenada().GetY() != nodo_actual->GetCasilla()->GetCoordenada().GetY());
-  int costo_movimiento = esDiagonal ? 7 : 5;
+  while (nodo_iter->GetPadre() != nullptr) {
+    Nodo* nodo_padre = nodo_iter->GetPadre();
+    int dx = std::abs(nodo_iter->GetCasilla()->GetCoordenada().GetX() - nodo_padre->GetCasilla()->GetCoordenada().GetX());
+    int dy = std::abs(nodo_iter->GetCasilla()->GetCoordenada().GetY() - nodo_padre->GetCasilla()->GetCoordenada().GetY());
 
-  return nodo_actual->GetPadre()->GetValorG() + costo_movimiento;
+    if (dx + dy == 1) costo += 5;
+    else if (dx == 1 && dy == 1) costo += 7;
+
+    nodo_iter = nodo_padre;
+  }
+  return costo;
 }
 
 int Grafo::FuncionF(int funcion_g, int funcion_h) {
   return funcion_g + funcion_h;
+}
+
+bool Grafo::EsDiagonal(Nodo* nodo) {
+  Nodo* nodo_padre = nodo->GetPadre();
+  int dx = std::abs(nodo->GetCasilla()->GetCoordenada().GetX() - nodo_padre->GetCasilla()->GetCoordenada().GetX());
+  int dy = std::abs(nodo->GetCasilla()->GetCoordenada().GetY() - nodo_padre->GetCasilla()->GetCoordenada().GetY());
+
+  if (dx + dy == 1) return false;
+  else return true;
 }
 
 /**

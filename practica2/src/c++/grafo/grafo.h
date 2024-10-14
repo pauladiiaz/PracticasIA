@@ -44,6 +44,7 @@ class Grafo {
   bool RevisarRama(Nodo*, Nodo*);
   void GenerarCoste(const std::vector<Nodo*>&, int&);
   void GenerarCamino(Nodo*, std::ofstream&, std::vector<Nodo*>&, int, int);
+  bool EsDiagonal(Nodo*);
 
   Nodo* GetRaiz() const { return raiz_; }
   Laberinto GetLaberinto() const { return laberinto_; }

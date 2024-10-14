@@ -33,7 +33,7 @@ class Nodo {
   void SetValorF(int valor) { valor_f_ = valor; }
   void SetValorG(int valor) { valor_g_ = valor; }
   void SetValorH(int valor) { valor_h_ = valor; }
-  void SetNodoPadre(Nodo* padre);
+  void SetNodoPadre(Nodo* padre) { nodo_padre_ = padre; };
   void SetCasilla(Casilla* casilla) { casilla_asociada_ = casilla; }
   bool operator<(const Nodo& otro) const { return this->GetNumero() < otro.GetNumero(); }
   bool operator==(const Nodo& other) const { return this->casilla_asociada_ == other.casilla_asociada_; }
