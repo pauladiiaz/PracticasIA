@@ -3,10 +3,10 @@
  * Escuela Superior de Ingeniería y Tecnología
  * 3º Curso en Grado en Ingeniería Informática
  * Inteligencia Artificial
- * Práctica 1: Búsquedas no informadas
+ * Práctica 2: Búsquedas informadas
  *
  * @author Paula Díaz Jorge alu0101540863@ull.edu.es
- * @date 24 sep 2024
+ * @date 10 oct 2024
 */
 
 #include "grafo.h"
@@ -15,13 +15,19 @@
  * @brief Método que implementa la búsqueda A*
  * @param fichero Fichero de salida en el que se imprimirá la solución
 */
-
-void Grafo::BusquedaA(std::ofstream& fichero) {
+void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& instancia) {
+  std::ofstream fichero(nombre_fichero);
   std::vector<Nodo*> A, C; // Lista de nodos abiertos (A) y cerrados (C)
   std::vector<Nodo*> nodos_generados, nodos_inspeccionados;
   std::vector<Casilla*> casillas_generadas; // Para desvincular los nodos luego
   std::string iteraciones = "";
   int vertice = 2, iteracion = 1;
+
+  fichero << "-----------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+  fichero << "Instancia      n    m    S   E                  Camino         Coste  Número de nodos generados   Número de nodos inspeccionados" << std::endl;
+  fichero << "-----------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+  fichero << "    " << instancia << "    " << GetNumeroFilas() << "   " << GetNumeroColumnas() << "  " << GetLaberinto().GetEntrada()->GetCoordenada();
+  fichero << "  " << GetLaberinto().GetSalida()->GetCoordenada() << "  ";
 
   // Inicializar el nodo inicial (raíz) con g(n) = 0 y f(n) = h(n)
   Nodo* nodo_actual = raiz_;
@@ -62,19 +68,17 @@ void Grafo::BusquedaA(std::ofstream& fichero) {
       // Si el nodo no está en C (lista cerrada)
       if (std::find(C.begin(), C.end(), nodo_adyacente) == C.end()) {
         auto it = std::find(A.begin(), A.end(), nodo_adyacente);
+        Nodo* padre_original = nodo_adyacente->GetPadre();
+        nodo_adyacente->SetNodoPadre(nodo_actual);
         if (it == A.end()) {
           // Si el nodo no está en A (lista abierta), añadirlo
-          nodo_adyacente->SetNodoPadre(nodo_actual);
           nodo_adyacente->SetValorG(FuncionG(nodo_adyacente));
           nodo_adyacente->SetValorH(FuncionHManhattan(adyacente, laberinto_.GetSalida()));
           nodo_adyacente->SetValorF(nodo_adyacente->GetValorG() + nodo_adyacente->GetValorH());
           A.emplace_back(nodo_adyacente);
         } else { 
-          Nodo* padre_original = nodo_adyacente->GetPadre();
-          nodo_adyacente->SetNodoPadre(nodo_actual);
-          int nuevo_g = FuncionG(nodo_adyacente); //+ (EsDiagonal(nodo_adyacente) ? 7 : 5);
+          int nuevo_g = FuncionG(nodo_adyacente);
           if (nuevo_g < nodo_adyacente->GetValorG()) {
-            nodo_adyacente->SetNodoPadre(nodo_actual);
             nodo_adyacente->SetValorG(nuevo_g);
             nodo_adyacente->SetValorF(nodo_adyacente->GetValorG() + nodo_adyacente->GetValorH());
           } else {
@@ -101,17 +105,28 @@ void Grafo::BusquedaA(std::ofstream& fichero) {
     if (casilla->GetNodo() != nullptr) casilla->SetNodo(nullptr);
   }
   for (auto& nodo : nodos_generados) {
-    if (nodo) delete nodo;
+    if (nodo && nodo != raiz_) delete nodo;
   }
+  fichero.close();
 }
 
-
+/**
+ * @brief Método que implementa la función heurística basada en la distancia de Manhattan
+ * @param actual La casilla actual
+ * @param destino La casilla de destino
+ * @return El valor de la función heurística
+*/
 int Grafo::FuncionHManhattan(Casilla* actual, Casilla* destino) {
   const int w = 3;
   return (abs(actual->GetCoordenada().GetX() - destino->GetCoordenada().GetX()) + 
         abs(actual->GetCoordenada().GetY() - destino->GetCoordenada().GetY())) * w;
 }
 
+/**
+ * @brief Método que implementa la función G, el costo acumulado
+ * @param nodo_actual 
+ * @return El costo acumulado desde la raíz
+*/
 int Grafo::FuncionG(Nodo* nodo_actual) {
   int costo = 0;
   Nodo* nodo_iter = nodo_actual;
@@ -129,22 +144,9 @@ int Grafo::FuncionG(Nodo* nodo_actual) {
   return costo;
 }
 
-int Grafo::FuncionF(int funcion_g, int funcion_h) {
-  return funcion_g + funcion_h;
-}
-
-bool Grafo::EsDiagonal(Nodo* nodo) {
-  Nodo* nodo_padre = nodo->GetPadre();
-  int dx = std::abs(nodo->GetCasilla()->GetCoordenada().GetX() - nodo_padre->GetCasilla()->GetCoordenada().GetX());
-  int dy = std::abs(nodo->GetCasilla()->GetCoordenada().GetY() - nodo_padre->GetCasilla()->GetCoordenada().GetY());
-
-  if (dx + dy == 1) return false;
-  else return true;
-}
-
 /**
-* @brief Método que imprime cada iteración de la búsuqeda seleccionada
-* @param fichero Fichero de salida en el que se imprimirá la solución
+* @brief Método que imprime cada iteración de la búsuqeda
+* @param iteraciones String que almacena las iteraciones realizadas en la búsqueda
 * @param nodos_generados 
 * @param nodos_inspeccionados
 * @param iteracion
@@ -179,25 +181,12 @@ void Grafo::ImprimirSolucion(std::string& iteraciones, const std::vector<Nodo*>&
 }
 
 /**
- * @brief Método que revisa todos los nodos de una rama sean distintos del nodo a insertar
- * @param nodo_insertar
- * @param nodo_actual
- * @return true si no hay otro nodo igual en la rama, false si sí
- */
-bool Grafo::RevisarRama(Nodo* nodo_insertar, Nodo* nodo_actual) {
-  Nodo* nodo_padre = nodo_actual->GetPadre();
-  while (nodo_padre != nullptr) {
-    if (nodo_padre->GetNumero() == nodo_insertar->GetNumero()) return false;  
-    nodo_padre = nodo_padre->GetPadre();
-  }
-  return true; // Se llegó hasta la raíz sin encontrar un nodo igual
-}
-
-/**
- * @brief Método que recorre desde el nodo destino los padres para generar el camino hasta el nodo origen
+ * @brief Método que recorre desde el nodo destino los padres para generar el camino hasta el nodo origen e imprime la solución del laberinto
  * @param nodo_actual Nodo destino
  * @param fichero Fichero de salida
  * @param camino Camino generado
+ * @param numero_generados Número de nodos generados
+ * @param numero_inspeccionados Número de nodos inspeccionados
  */
 void Grafo::GenerarCamino(Nodo* nodo_actual, std::ofstream& fichero, std::vector<Nodo*>& camino, int numero_generados, int numero_inspeccionados) {
   Nodo* nodo_padre = nodo_actual->GetPadre();

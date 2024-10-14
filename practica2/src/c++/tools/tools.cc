@@ -3,10 +3,10 @@
  * Escuela Superior de Ingeniería y Tecnología
  * 3º Curso en Grado en Ingeniería Informática
  * Inteligencia Artificial
- * Práctica 1: Búsquedas no informadas
+ * Práctica 2: Búsquedas informadas
  *
  * @author Paula Díaz Jorge alu0101540863@ull.edu.es
- * @date 24 sep 2024
+ * @date 10 oct 2024
 */
 
 #include "tools.h"

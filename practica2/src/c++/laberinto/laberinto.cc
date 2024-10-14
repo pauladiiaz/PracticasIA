@@ -3,16 +3,24 @@
  * Escuela Superior de Ingeniería y Tecnología
  * 3º Curso en Grado en Ingeniería Informática
  * Inteligencia Artificial
- * Práctica 1: Búsquedas no informadas
+ * Práctica 2: Búsquedas informadas
  *
  * @author Paula Díaz Jorge alu0101540863@ull.edu.es
- * @date 24 sep 2024
+ * @date 10 oct 2024
 */
 
 #include "laberinto.h"
 #include <fstream>
 #include <sstream>
 
+/**
+ * @brief Constructor de la clase Laberinto
+ * @param nombre_fichero Fichero desde el que se lee el laberinto
+ * @param numero_filas 
+ * @param numero_columnas
+ * @param entrada
+ * @param salida
+*/
 Laberinto::Laberinto(const std::string& nombre_fichero, int& numero_filas, int& numero_columnas) : entrada_(nullptr), salida_(nullptr) {
   std::ifstream fichero(nombre_fichero);
   if (!fichero.is_open()) {
@@ -35,39 +43,49 @@ Laberinto::Laberinto(const std::string& nombre_fichero, int& numero_filas, int& 
     std::istringstream ss(linea);
     int tipo, k = 0;
     while (ss >> tipo) {
-      Coordenada coordenada(i, k);
-      Casilla nueva_casilla(tipo, coordenada);
-      casillas_[i][k] = nueva_casilla;
+      Coordenada coordenada(i, k); // Las coordenadas serán el número de fila y columna
+      Casilla nueva_casilla(tipo, coordenada); // Se crea una casilla con esas coordenadas y el tipo
+      casillas_[i][k] = nueva_casilla; // Se asocia la casilla al laberinto
       if (tipo == 3) entrada_ = &casillas_[i][k];
       if (tipo == 4) salida_ = &casillas_[i][k];
       k++;      
     }
   }
   if (entrada_ == nullptr || salida_ == nullptr) throw std::runtime_error("Error: no se encontró una entrada y salida para el laberinto");
+  fichero.close();
 }
 
+/**
+ * @brief Método de sobrecarga del operador =
+ * @param other Otro laberinto
+*/
 Laberinto& Laberinto::operator=(const Laberinto& other) {
-    if (this != &other) { // Protección contra auto-asignación
-        casillas_ = other.casillas_;
-        // Actualizar entrada_ y salida_ para que apunten a las casillas correspondientes en este objeto
-        if (other.entrada_ != nullptr) {
-            int entradaX = other.entrada_->GetCoordenada().GetX();
-            int entradaY = other.entrada_->GetCoordenada().GetY();
-            entrada_ = &casillas_[entradaX][entradaY];
-        } else {
-            entrada_ = nullptr;
-        }
-        if (other.salida_ != nullptr) {
-            int salidaX = other.salida_->GetCoordenada().GetX();
-            int salidaY = other.salida_->GetCoordenada().GetY();
-            salida_ = &casillas_[salidaX][salidaY];
-        } else {
-            salida_ = nullptr;
-        }
+  if (this != &other) { // Protección contra auto-asignación
+    casillas_ = other.casillas_;
+    // Actualizar entrada_ y salida_ para que apunten a las casillas correspondientes en este objeto
+    if (other.entrada_ != nullptr) {
+      int entradaX = other.entrada_->GetCoordenada().GetX();
+      int entradaY = other.entrada_->GetCoordenada().GetY();
+      entrada_ = &casillas_[entradaX][entradaY];
+    } else {
+      entrada_ = nullptr;
     }
-    return *this;
+    if (other.salida_ != nullptr) {
+      int salidaX = other.salida_->GetCoordenada().GetX();
+      int salidaY = other.salida_->GetCoordenada().GetY();
+      salida_ = &casillas_[salidaX][salidaY];
+    } else {
+      salida_ = nullptr;
+    }
+  }
+  return *this;
 }
 
+/**
+ * @brief Método que devuelve las casillas adyacentes a una casilla dada
+ * @param casilla 
+ * @return Vector de casillas adyacantes
+*/
 std::vector<Casilla*> Laberinto::GetCasillasAdyacentes(Casilla* casilla) {
   if (casilla == nullptr) throw std::runtime_error("Error: la casilla no puede ser nula");
   std::vector<Casilla*> adyacentes;
@@ -91,6 +109,9 @@ std::vector<Casilla*> Laberinto::GetCasillasAdyacentes(Casilla* casilla) {
   return adyacentes;
 }
 
+/**
+ * @brief Método para imprimir el laberinto por pantalla
+*/
 void Laberinto::ImprimirLaberinto() {
   for (int i = 0; i < casillas_.size(); ++i) {
     for (int j = 0; j < casillas_[i].size(); ++j) {
@@ -100,6 +121,10 @@ void Laberinto::ImprimirLaberinto() {
   }
 }
 
+/**
+ * @brief Método para cambiar la entrada del laberinto, teniendo en cuenta que cumpla con los requisitos
+ * @param nueva_entrada Las coordenadas de la nueva entrada
+*/
 void Laberinto::CambiarEntrada(Coordenada nueva_entrada) {
   if (nueva_entrada != entrada_->GetCoordenada()) { // Si la nueva entrada es distinta a la actual
     if (nueva_entrada.GetX() < 0 || nueva_entrada.GetX() >= casillas_.size() || nueva_entrada.GetY() < 0 || nueva_entrada.GetY() >= casillas_[0].size()) 
@@ -113,11 +138,15 @@ void Laberinto::CambiarEntrada(Coordenada nueva_entrada) {
       entrada_ = &casillas_[nueva_entrada.GetX()][nueva_entrada.GetY()];
       entrada_->SetTipo(3);
     } else {
-      throw std::runtime_error("Error: la entrada no puede ser igual a la entrada");
+      throw std::runtime_error("Error: la entrada no puede ser igual a la salida");
     }
   }
 }
 
+/**
+ * @brief Método para cambiar la salida del laberinto, teniendo en cuenta que cumpla con los requisitos
+ * @param nueva_salida Coordenadas de la nueva salida
+*/
 void Laberinto::CambiarSalida(Coordenada nueva_salida) {
   if (nueva_salida != salida_->GetCoordenada()) { // Si la nueva salida es distinta a la actual
     if (nueva_salida.GetX() < 0 || nueva_salida.GetX() >= casillas_.size() || nueva_salida.GetY() < 0 || nueva_salida.GetY() >= casillas_[0].size()) 
