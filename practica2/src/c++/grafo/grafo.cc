@@ -33,8 +33,8 @@ void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& inst
     }
   };
   std::ofstream fichero(nombre_fichero);
-  std::priority_queue<Nodo*, std::vector<Nodo*>, ComparadorNodo> A;
-  std::unordered_set<Nodo*> C, A_set;
+  std::vector<Nodo*> A;
+  std::unordered_set<Nodo*> C;
   std::vector<Nodo*> nodos_generados, nodos_inspeccionados;
   std::vector<Casilla*> casillas_generadas; // Para desvincular los nodos luego
   std::string iteraciones = "";
@@ -49,19 +49,20 @@ void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& inst
   // Inicializar el nodo inicial (raíz) con g(n) = 0 y f(n) = h(n)
   Nodo* nodo_actual = raiz_;
   nodo_actual->SetValorG(0); // g(n) inicial es 0
-  nodo_actual->SetValorH(FuncionHCombinada(nodo_actual->GetCasilla(), laberinto_.GetSalida())); // h(n) inicial
+  nodo_actual->SetValorH(FuncionHManhattan(nodo_actual->GetCasilla(), laberinto_.GetSalida())); // h(n) inicial
   nodo_actual->SetValorF(nodo_actual->GetValorG() + nodo_actual->GetValorH()); // f(n) = g(n) + h(n)
   nodos_generados.emplace_back(nodo_actual);
   
-  A.push(nodo_actual); // Agregar el nodo inicial a la lista abierta
-  A_set.insert(nodo_actual);
+  A.push_back(nodo_actual); // Agregar el nodo inicial a la lista abierta
   bool encontrado = false;
 
   while (!A.empty() && !encontrado) {
     ImprimirSolucion(iteraciones, nodos_generados, nodos_inspeccionados, iteracion);
-    nodo_actual = A.top(); // Cogemos el nodo con menor f(n)
-    A.pop();
-    A_set.erase(nodo_actual);
+    std::sort(A.begin(), A.end(), [](Nodo* a, Nodo* b) {
+      return a->GetValorF() < b->GetValorF();
+    });
+    nodo_actual = A.front(); // Cogemos el nodo con menor f(n)
+    A.erase(A.begin());
     C.insert(nodo_actual); // Agregarlo a la lista de cerrados C
 
     // Si se llega a la salida
@@ -87,13 +88,13 @@ void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& inst
       if (C.find(nodo_adyacente) == C.end()) {
         Nodo* padre_original = nodo_adyacente->GetPadre();
         nodo_adyacente->SetNodoPadre(nodo_actual);
-        if (A_set.find(nodo_adyacente) == A_set.end()) {
+        auto it = std::find(A.begin(), A.end(), nodo_adyacente);
+        if (it == A.end()) {
           // Si el nodo no está en A (lista abierta), añadirlo
           nodo_adyacente->SetValorG(FuncionG(nodo_adyacente));
-          nodo_adyacente->SetValorH(FuncionHCombinada(adyacente, laberinto_.GetSalida()));
+          nodo_adyacente->SetValorH(FuncionHManhattan(adyacente, laberinto_.GetSalida()));
           nodo_adyacente->SetValorF(nodo_adyacente->GetValorG() + nodo_adyacente->GetValorH());
-          A.emplace(nodo_adyacente);
-          A_set.insert(nodo_adyacente);
+          A.emplace_back(nodo_adyacente);
         } else { 
           int nuevo_g = FuncionG(nodo_adyacente);
           if (nuevo_g < nodo_adyacente->GetValorG()) {
