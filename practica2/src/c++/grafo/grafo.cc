@@ -33,7 +33,6 @@ void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& inst
     }
   };
   std::ofstream fichero(nombre_fichero);
-  std::srand(time(0));
   for (int i = 1; i <= 10; ++i) {
   std::vector<Nodo*> A;
   std::unordered_set<Nodo*> C;
@@ -63,6 +62,12 @@ void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& inst
     std::sort(A.begin(), A.end(), [](Nodo* a, Nodo* b) {
       return a->GetValorF() < b->GetValorF();
     });
+    // std::cout << "It: " << iteracion << std::endl;
+    // std::cout << "A: ";
+    // for (auto nodo : A) {
+    //   std::cout << nodo->GetCasilla()->GetCoordenada() << " ";
+    // }
+    // std::cout << std::endl;
     if (iteracion == 2) {
       int elegido = std::rand() % A.size();
       std::cout << elegido << std::endl;
@@ -74,7 +79,7 @@ void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& inst
       A.erase(A.begin());
     }
     C.insert(nodo_actual); // Agregarlo a la lista de cerrados C
-    if (iteracion == 2) std::cout << nodo_actual->GetCasilla()->GetCoordenada() << std::endl;
+    // if (iteracion == 2) std::cout << nodo_actual->GetCasilla()->GetCoordenada() << std::endl;
     // Si se llega a la salida
     if (nodo_actual->GetCasilla()->GetTipo() == 4) { 
       encontrado = true;
@@ -154,7 +159,7 @@ int Grafo::FuncionHManhattan(Casilla* actual, Casilla* destino) {
 
 /**
  * @brief Método que implementa una función heurística variante de la distancia de Chebyshev. Calcula dx y dy para luego usar el mayor de estos valores para estimar el costo.
- *        Se ha ajustado para reflehar la diferencia de costo entre ir recto e ir en diagonal
+ *        Se ha ajustado para reflejar la diferencia de costo entre ir recto e ir en diagonal
  * @param actual Casilla actual
  * @param destino Casilla destino
  * @return El valor de la función heurística
@@ -175,17 +180,17 @@ int Grafo::FuncionHAdaptada(Casilla* actual, Casilla* destino) {
  * @param destino Casilla destino
  * @return El valor de la función heurística
 */
-int Grafo::FuncionHCombinada(Casilla* actual, Casilla* destino) {
-  int dx = std::abs(actual->GetCoordenada().GetX() - destino->GetCoordenada().GetX());
-  int dy = std::abs(actual->GetCoordenada().GetY() - destino->GetCoordenada().GetY());
-  int dManhattan = (dx + dy) * 5; // Costo de movimiento recto
-  double dEuclidiana = std::sqrt(dx*dx + dy*dy);
+// int Grafo::FuncionHCombinada(Casilla* actual, Casilla* destino) {
+//   int dx = std::abs(actual->GetCoordenada().GetX() - destino->GetCoordenada().GetX());
+//   int dy = std::abs(actual->GetCoordenada().GetY() - destino->GetCoordenada().GetY());
+//   int dManhattan = (dx + dy) * 5; // Costo de movimiento recto
+//   double dEuclidiana = std::sqrt(dx*dx + dy*dy);
   
-  // Estimación del componente diagonal
-  double componenteDiagonal = std::max(0.0, dEuclidiana - std::max(dx, dy)) * (7 - 5);
+//   // Estimación del componente diagonal
+//   double componenteDiagonal = std::max(0.0, dEuclidiana - std::max(dx, dy)) * (7 - 5);
   
-  return dManhattan + static_cast<int>(componenteDiagonal);
-}
+//   return dManhattan + static_cast<int>(componenteDiagonal);
+// }
 
 /**
  * @brief Método que implementa la función G, el costo acumulado

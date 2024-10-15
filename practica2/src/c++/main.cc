@@ -14,6 +14,7 @@
 #include "grafo/grafo.h"
 
 int main(int argc, char* argv[]) {
+  std::srand(std::time(0));
   std::string nombre_fichero_entrada = "";
   int error = CheckErrors(CheckParams(argc, argv, nombre_fichero_entrada));
   if (error != 0) exit(EXIT_FAILURE);
