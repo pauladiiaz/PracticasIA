@@ -61,8 +61,23 @@ void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& inst
     std::sort(A.begin(), A.end(), [](Nodo* a, Nodo* b) {
       return a->GetValorF() < b->GetValorF();
     });
-    nodo_actual = A.front(); // Cogemos el nodo con menor f(n)
-    A.erase(A.begin());
+    // Metemos los tres primeros
+    if (A.size() >= 3) {
+      std::srand(std::time(0));
+      std::vector<Nodo*> tres_primeros(A.begin(), A.begin() + 3);
+      int elegido = std::rand() % 3;
+      nodo_actual = tres_primeros[elegido]; // Cogemos el nodo con menor f(n)
+      A.erase(A.begin() + elegido);
+    } else if (A.size() == 2) {
+      std::srand(std::time(0));
+      std::vector<Nodo*> tres_primeros(A.begin(), A.begin() + 2);
+      int elegido = std::rand() % 2;
+      nodo_actual = tres_primeros[elegido]; // Cogemos el nodo con menor f(n)    
+      A.erase(A.begin() + elegido);    
+    } else {
+      nodo_actual = A.front();
+      A.erase(A.begin());
+    }
     C.insert(nodo_actual); // Agregarlo a la lista de cerrados C
 
     // Si se llega a la salida
