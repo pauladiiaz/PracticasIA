@@ -33,6 +33,8 @@ void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& inst
     }
   };
   std::ofstream fichero(nombre_fichero);
+  std::srand(time(0));
+  for (int i = 1; i <= 10; ++i) {
   std::vector<Nodo*> A;
   std::unordered_set<Nodo*> C;
   std::vector<Nodo*> nodos_generados, nodos_inspeccionados;
@@ -61,10 +63,18 @@ void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& inst
     std::sort(A.begin(), A.end(), [](Nodo* a, Nodo* b) {
       return a->GetValorF() < b->GetValorF();
     });
-    nodo_actual = A.front(); // Cogemos el nodo con menor f(n)
-    A.erase(A.begin());
+    if (iteracion == 2) {
+      int elegido = std::rand() % A.size();
+      std::cout << elegido << std::endl;
+      nodo_actual = A[elegido];
+      std::cout << "Nodo elegido" << nodo_actual->GetCasilla()->GetCoordenada() << std::endl;
+      A.erase(A.begin() + elegido);
+    } else {
+      nodo_actual = A.front(); // Cogemos el nodo con menor f(n)
+      A.erase(A.begin());
+    }
     C.insert(nodo_actual); // Agregarlo a la lista de cerrados C
-
+    if (iteracion == 2) std::cout << nodo_actual->GetCasilla()->GetCoordenada() << std::endl;
     // Si se llega a la salida
     if (nodo_actual->GetCasilla()->GetTipo() == 4) { 
       encontrado = true;
@@ -125,6 +135,7 @@ void Grafo::BusquedaA(const std::string& nombre_fichero, const std::string& inst
   }
   for (auto& nodo : nodos_generados) {
     if (nodo && nodo != raiz_) delete nodo;
+  }
   }
   fichero.close();
 }
